@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App Menu</title>
+  <style>
+    /* =========================================================
+       RESET & BASE
+    ========================================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg:           #f0f2f5;
+      --surface:      #ffffff;
+      --border:       #e4e7ec;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --accent:       #4f46e5;
+      --accent-light: #eef2ff;
+      --shadow-sm:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md:    0 4px 16px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.06);
+      --shadow-lg:    0 8px 30px rgba(0,0,0,.13), 0 4px 12px rgba(0,0,0,.07);
+      --radius-card:  14px;
+      --radius-icon:  10px;
+      --transition:   0.22s ease;
+    }
+
+    html, body {
+      min-height: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    /* =========================================================
+       PAGE WRAPPER
+    ========================================================= */
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 72px;
+    }
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .header__eyebrow {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 14px;
+    }
+
+    .header__title {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .header__subtitle {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* =========================================================
+       SECTION — optional grouping label
+    ========================================================= */
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section__label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      padding-left: 2px;
+    }
+
+    /* =========================================================
+       GRID
+    ========================================================= */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    /* =========================================================
+       CARD  — the reusable building block
+       To add a new item, copy one <a class="card"> … </a> block.
+    ========================================================= */
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 24px 22px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: var(--shadow-sm);
+      transition:
+        transform  var(--transition),
+        box-shadow var(--transition),
+        border-color var(--transition);
+      /* Prevent text selection on rapid hover-clicks */
+      user-select: none;
+    }
+
+    .card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: var(--shadow-lg);
+      border-color: transparent;
+    }
+
+    .card:active {
+      transform: translateY(-1px) scale(1.005);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ---- icon ---- */
+    .card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-icon);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;         /* emoji icon size */
+      flex-shrink: 0;
+      /* default colour — override per-card with a modifier class */
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    /* Icon colour modifiers — add more as needed */
+    .card__icon--indigo  { background: #eef2ff; color: #4f46e5; }
+    .card__icon--teal    { background: #f0fdfa; color: #0d9488; }
+    .card__icon--rose    { background: #fff1f2; color: #e11d48; }
+    .card__icon--amber   { background: #fffbeb; color: #d97706; }
+    .card__icon--sky     { background: #f0f9ff; color: #0284c7; }
+    .card__icon--violet  { background: #f5f3ff; color: #7c3aed; }
+    .card__icon--emerald { background: #ecfdf5; color: #059669; }
+    .card__icon--orange  { background: #fff7ed; color: #ea580c; }
+
+    /* ---- text ---- */
+    .card__body {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .card__title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .card__desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* ---- optional badge ---- */
+    .card__badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 100px;
+      background: #f3f4f6;
+      color: var(--text-secondary);
+    }
+
+    .card__badge--new   { background: #dcfce7; color: #15803d; }
+    .card__badge--beta  { background: #fef3c7; color: #92400e; }
+    .card__badge--soon  { background: #f1f5f9; color: #94a3b8; }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+    .footer {
+      text-align: center;
+      margin-top: 64px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* =========================================================
+       RESPONSIVE TWEAKS
+    ========================================================= */
+    @media (max-width: 480px) {
+      .page { padding: 32px 16px 56px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="page">
+
+  <!-- ── PAGE HEADER ──────────────────────────────────────── -->
+  <header class="header">
+    <span class="header__eyebrow">Dashboard</span>
+    <h1 class="header__title">App Launcher</h1>
+    <p class="header__subtitle">Select an application below to get started.</p>
+  </header>
+
+
+  <!-- ── SECTION: Core Tools ──────────────────────────────── -->
+  <section class="section" aria-labelledby="label-core">
+    <p class="section__label" id="label-core">Core Tools</p>
+
+    <div class="grid">
+
+      <!--
+        ┌──────────────────────────────────────────────────────┐
+        │  HOW TO ADD A NEW MENU ITEM                          │
+        │  1. Copy one <a class="card"> … </a> block below.   │
+        │  2. Update href, icon emoji, title, and description. │
+        │  3. Pick an icon colour modifier (card__icon--*).    │
+        │  4. Optionally add a <span class="card__badge">.     │
+        │  That's it — no CSS changes needed.                  │
+        └──────────────────────────────────────────────────────┘
+      -->
+
+      <!-- ITEM: Analytics -->
+      <a class="card" href="#analytics">
+        <div class="card__icon card__icon--indigo">📊</div>
+        <div class="card__body">
+          <span class="card__title">Analytics</span>
+          <span class="card__desc">Real-time metrics, dashboards, and usage reports.</span>
+        </div>
+      </a>
+
+      <!-- ITEM: File Manager -->
+      <a class="card" href="#files">
+        <div class="card__icon card__icon--teal">🗂️</div>
+        <div class="card__body">
+          <span class="card__title">File Manager</span>
+          <span class="card__desc">Browse, upload, and organise your files and folders.</span>
+        </div>
+      </a>
+
+      <!-- ITEM: Calendar -->
+      <a class="card" href="#calendar">
+        <div class="card__icon card__icon--rose">📅</div>
+        <div class="card__body">
+          <span class="card__title">Calendar</span>
+          <span class="card__desc">Schedule events, set reminders, and manage your time.</span>
+        </div>
+      </a>
+
+      <!-- ITEM: Email -->
+      <a class="card" href="#email">
+        <div class="card__icon card__icon--sky">✉️</div>
+        <div class="card__body">
+          <span class="card__title">Email</span>
+          <span class="card__desc">Compose, send, and manage your messages in one place.</span>
+        </div>
+      </a>
+
+      <!-- ITEM: Settings -->
+      <a class="card" href="#settings">
+        <div class="card__icon card__icon--amber">⚙️</div>
+        <div class="card__body">
+          <span class="card__title">Settings</span>
+          <span class="card__desc">Configure preferences, accounts, and security options.</span>
+        </div>
+      </a>
+
+      <!-- ITEM: User Management -->
+      <a class="card" href="#users">
+        <div class="card__icon card__icon--violet">👥</div>
+        <div class="card__body">
+          <span class="card__title">Users</span>
+          <span class="card__desc">Manage team members, roles, and permissions.</span>
+        </div>
+      </a>
+
+    </div><!-- /.grid -->
+  </section>
+
+
+  <!-- ── SECTION: Growth ──────────────────────────────────── -->
+  <section class="section" aria-labelledby="label-growth">
+    <p class="section__label" id="label-growth">Growth</p>
+
+    <div class="grid">
+
+      <!-- ITEM: CRM -->
+      <a class="card" href="#crm">
+        <div class="card__icon card__icon--emerald">🤝</div>
+        <div class="card__body">
+          <span class="card__title">CRM</span>
+          <span class="card__desc">Track leads, contacts, and your entire sales pipeline.</span>
+          <span class="card__badge card__badge--new">New</span>
+        </div>
+      </a>
+
+      <!-- ITEM: Campaigns -->
+      <a class="card" href="#campaigns">
+        <div class="card__icon card__icon--orange">📣</div>
+        <div class="card__body">
+          <span class="card__title">Campaigns</span>
+          <span class="card__desc">Design and launch targeted marketing campaigns.</span>
+          <span class="card__badge card__badge--beta">Beta</span>
+        </div>
+      </a>
+
+      <!-- ITEM: Integrations -->
+      <a class="card" href="#integrations">
+        <div class="card__icon card__icon--sky">🔌</div>
+        <div class="card__body">
+          <span class="card__title">Integrations</span>
+          <span class="card__desc">Connect your favourite third-party tools and services.</span>
+        </div>
+      </a>
+
+      <!-- ITEM: Reports -->
+      <a class="card" href="#reports">
+        <div class="card__icon card__icon--indigo">📋</div>
+        <div class="card__body">
+          <span class="card__title">Reports</span>
+          <span class="card__desc">Generate and export detailed performance reports.</span>
+        </div>
+      </a>
+
+      <!-- ITEM: AI Assistant — example "coming soon" card -->
+      <a class="card" href="#ai" aria-disabled="true" style="pointer-events: none; opacity: 0.55;">
+        <div class="card__icon card__icon--violet">🤖</div>
+        <div class="card__body">
+          <span class="card__title">AI Assistant</span>
+          <span class="card__desc">Automate tasks and surface insights using AI.</span>
+          <span class="card__badge card__badge--soon">Coming Soon</span>
+        </div>
+      </a>
+
+    </div><!-- /.grid -->
+  </section>
+
+
+  <!-- ── FOOTER ────────────────────────────────────────────── -->
+  <footer class="footer">
+    <p>App Menu &mdash; extend by adding <code>&lt;a class="card"&gt;</code> blocks inside any <code>.grid</code>.</p>
+  </footer>
+
+</main>
+
+</body>
+</html>

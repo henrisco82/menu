@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dell Technologies | Enterprise Portal</title>
+  <style>
+    /* =========================================================
+       RESET & BASE
+    ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Dell brand palette */
+      --dell-blue:        #0076CE;
+      --dell-blue-dark:   #005BA1;
+      --dell-blue-mid:    #2E8FD4;
+      --dell-blue-faint:  #EBF5FB;
+      --dell-blue-pale:   #F0F7FD;
+
+      /* Surfaces */
+      --bg:         #F3F6FA;
+      --surface:    #FFFFFF;
+      --surface-alt:#F8FAFC;
+      --border:     #DDE3EA;
+      --border-mid: #C8D3DE;
+
+      /* Text */
+      --text-primary:   #0F1C2E;
+      --text-secondary: #4A6080;
+      --text-muted:     #8EA3BC;
+
+      /* Status colours */
+      --green:  #00875A;
+      --green-bg: #E3F5EF;
+      --amber:  #C05C00;
+      --amber-bg: #FEF3E2;
+      --slate-bg: #EEF2F6;
+
+      /* Shadows */
+      --shadow-xs: 0 1px 2px rgba(15,28,46,.06);
+      --shadow-sm: 0 2px 8px rgba(15,28,46,.07), 0 1px 2px rgba(15,28,46,.04);
+      --shadow-md: 0 6px 24px rgba(15,28,46,.10), 0 2px 6px rgba(15,28,46,.05);
+      --shadow-blue: 0 6px 24px rgba(0,118,206,.15), 0 2px 6px rgba(0,118,206,.08);
+
+      --radius-card: 14px;
+      --radius-icon: 10px;
+      --radius-pill: 100px;
+      --transition:  0.20s ease;
+    }
+
+    html, body { min-height: 100%; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.55;
+    }
+
+    /* =========================================================
+       SIDEBAR LAYOUT
+    ========================================================= */
+    .layout {
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      height: 58px;
+      background: var(--dell-blue);
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+
+    .topbar__logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      margin-right: 32px;
+    }
+
+    .topbar__logo-text {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      padding-left: 10px;
+      border-left: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .topbar__search {
+      flex: 1;
+      max-width: 420px;
+      position: relative;
+    }
+
+    .topbar__search input {
+      width: 100%;
+      height: 34px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: var(--radius-pill);
+      padding: 0 14px 0 36px;
+      font-size: 0.85rem;
+      color: #fff;
+      outline: none;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    .topbar__search input::placeholder { color: rgba(255,255,255,0.55); }
+    .topbar__search input:focus {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.45);
+    }
+
+    .topbar__search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.55);
+      pointer-events: none;
+    }
+
+    .topbar__right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .topbar__icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.85);
+      cursor: pointer;
+      transition: background var(--transition);
+      text-decoration: none;
+    }
+
+    .topbar__icon-btn:hover { background: rgba(255,255,255,0.2); }
+
+    .topbar__avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      border: 2px solid rgba(255,255,255,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-y: auto;
+    }
+
+    .sidebar__section-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 16px 20px 6px;
+    }
+
+    .sidebar__item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 20px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: color var(--transition), background var(--transition),
+                  border-color var(--transition);
+    }
+
+    .sidebar__item svg { flex-shrink: 0; width: 16px; height: 16px; }
+
+    .sidebar__item:hover {
+      background: var(--dell-blue-pale);
+      color: var(--dell-blue);
+    }
+
+    .sidebar__item--active {
+      background: var(--dell-blue-faint);
+      color: var(--dell-blue);
+      border-left-color: var(--dell-blue);
+      font-weight: 600;
+    }
+
+    .sidebar__badge {
+      margin-left: auto;
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: var(--dell-blue);
+      color: #fff;
+      padding: 1px 7px;
+      border-radius: var(--radius-pill);
+    }
+
+    .sidebar__divider {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 16px;
+    }
+
+    .sidebar__footer {
+      margin-top: auto;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .sidebar__user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar__user-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--dell-blue-faint);
+      border: 2px solid var(--dell-blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--dell-blue);
+      flex-shrink: 0;
+    }
+
+    .sidebar__user-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .sidebar__user-role {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Main content ── */
+    .main {
+      padding: 36px 32px 64px;
+      overflow-y: auto;
+    }
+
+    /* =========================================================
+       PAGE HEADER
+    ========================================================= */
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .page-header__left {}
+
+    .page-header__eyebrow {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--dell-blue);
+      margin-bottom: 6px;
+    }
+
+    .page-header__title {
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .page-header__sub {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: background var(--transition), box-shadow var(--transition),
+                  border-color var(--transition), color var(--transition);
+      cursor: pointer;
+    }
+
+    .btn--primary {
+      background: var(--dell-blue);
+      color: #fff;
+      border-color: var(--dell-blue);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .btn--primary:hover {
+      background: var(--dell-blue-dark);
+      border-color: var(--dell-blue-dark);
+      box-shadow: var(--shadow-blue);
+    }
+
+    .btn--ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .btn--ghost:hover {
+      background: var(--surface);
+      border-color: var(--border-mid);
+      color: var(--text-primary);
+    }
+
+    /* =========================================================
+       ALERT BANNER
+    ========================================================= */
+    .alert {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--dell-blue-faint);
+      border: 1px solid rgba(0,118,206,.2);
+      border-left: 4px solid var(--dell-blue);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 28px;
+      font-size: 0.84rem;
+      color: var(--dell-blue-dark);
+    }
+
+    .alert svg { flex-shrink: 0; }
+
+    .alert strong { font-weight: 600; }
+
+    /* =========================================================
+       SECTION
+    ========================================================= */
+    .section { margin-bottom: 36px; }
+
+    .section__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section__title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .section__link {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--dell-blue);
+      text-decoration: none;
+    }
+
+    .section__link:hover { text-decoration: underline; }
+
+    /* =========================================================
+       GRID
+    ========================================================= */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 16px;
+    }
+
+    .grid--wide {
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    }
+
+    /* =========================================================
+       CARD
+       To add a new item: copy one <a class="card"> block,
+       update href/icon/title/desc and set --card-color to any
+       hex or CSS var. No other changes needed.
+    ========================================================= */
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      text-decoration: none;
+      color: inherit;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition:
+        transform    var(--transition),
+        box-shadow   var(--transition),
+        border-color var(--transition);
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-mid);
+    }
+
+    .card:active { transform: translateY(-1px); }
+
+    /* Coloured top stripe */
+    .card__stripe {
+      height: 4px;
+      background: var(--card-color, var(--dell-blue));
+    }
+
+    .card__inner {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 20px 18px 16px;
+      flex: 1;
+    }
+
+    /* Icon row */
+    .card__header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .card__icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-icon);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card-bg, var(--dell-blue-faint));
+      flex-shrink: 0;
+    }
+
+    .card__icon svg { width: 20px; height: 20px; }
+
+    .card__status {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .card__status::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .card__status--online { color: var(--green); }
+    .card__status--warn   { color: var(--amber); }
+    .card__status--off    { color: var(--text-muted); }
+
+    /* Text */
+    .card__title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .card__desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* Footer row */
+    .card__foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 18px 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .card__badge {
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 2px 9px;
+      border-radius: var(--radius-pill);
+      background: var(--slate-bg);
+      color: var(--text-muted);
+    }
+
+    .card__badge--new   { background: var(--green-bg);  color: var(--green); }
+    .card__badge--beta  { background: var(--amber-bg);  color: var(--amber); }
+    .card__badge--soon  { background: var(--slate-bg);  color: var(--text-muted); }
+
+    .card__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--card-color, var(--dell-blue));
+      transition: gap var(--transition);
+    }
+
+    .card:hover .card__cta { gap: 7px; }
+
+    /* =========================================================
+       FEATURED CARD (horizontal, spans 2 cols on wide screens)
+    ========================================================= */
+    .card--featured {
+      flex-direction: row;
+      align-items: stretch;
+    }
+
+    .card--featured .card__stripe {
+      width: 4px;
+      height: auto;
+    }
+
+    .card--featured .card__inner {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .card--featured .card__icon {
+      width: 52px; height: 52px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .card--featured .card__icon svg { width: 24px; height: 24px; }
+
+    .card--featured .card__body { flex: 1; }
+
+    .card--featured .card__actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .footer a { color: var(--dell-blue); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+      .sidebar { display: none; }
+      .main { padding: 24px 16px 56px; }
+      .card--featured { flex-direction: column; }
+      .card--featured .card__stripe { width: auto; height: 4px; }
+      .card--featured .card__inner { flex-direction: column; }
+    }
+
+    @media (max-width: 500px) {
+      .grid, .grid--wide { grid-template-columns: 1fr; }
+      .topbar__search { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── TOPBAR ───────────────────────────────────────────── -->
+  <header class="topbar" role="banner">
+    <a class="topbar__logo" href="#">
+      <!-- Dell wordmark -->
+      <svg width="50" height="18" viewBox="0 0 50 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Dell">
+        <text x="0" y="16" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+              font-size="17" font-weight="800" letter-spacing="-0.5" fill="#ffffff">DELL</text>
+      </svg>
+      <span class="topbar__logo-text">Technologies</span>
+    </a>
+
+    <div class="topbar__search" role="search">
+      <svg class="topbar__search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" placeholder="Search apps, tools, docs…" aria-label="Search" />
+    </div>
+
+    <div class="topbar__right">
+      <!-- Notifications -->
+      <a class="topbar__icon-btn" href="#" aria-label="Notifications">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </a>
+      <!-- Help -->
+      <a class="topbar__icon-btn" href="#" aria-label="Help">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </a>
+      <!-- Avatar -->
+      <a class="topbar__avatar" href="#" aria-label="My account">JD</a>
+    </div>
+  </header>
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+  <nav class="sidebar" aria-label="App navigation">
+    <span class="sidebar__section-label">Workspace</span>
+
+    <a class="sidebar__item sidebar__item--active" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      All Applications
+    </a>
+
+    <a class="sidebar__item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+      Favourites
+      <span class="sidebar__badge">3</span>
+    </a>
+
+    <a class="sidebar__item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Recent
+    </a>
+
+    <div class="sidebar__divider"></div>
+    <span class="sidebar__section-label">Categories</span>
+
+    <a class="sidebar__item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <line x1="8" y1="21" x2="16" y2="21"/>
+        <line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+      Device Management
+    </a>
+
+    <a class="sidebar__item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      Security
+    </a>
+
+    <a class="sidebar__item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Cloud &amp; Infrastructure
+    </a>
+
+    <a class="sidebar__item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+      </svg>
+      Support
+    </a>
+
+    <div class="sidebar__divider"></div>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__user-avatar">JD</div>
+        <div>
+          <div class="sidebar__user-name">John Doe</div>
+          <div class="sidebar__user-role">IT Administrator</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT ─────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div class="page-header__left">
+        <p class="page-header__eyebrow">Enterprise Portal</p>
+        <h1 class="page-header__title">All Applications</h1>
+        <p class="page-header__sub">12 tools available for your organisation.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a class="btn btn--ghost" href="#">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/>
+            <line x1="3" y1="12" x2="3.01" y2="12"/>
+            <line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          Manage
+        </a>
+        <a class="btn btn--primary" href="#">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add App
+        </a>
+      </div>
+    </div>
+
+    <!-- Alert banner -->
+    <div class="alert" role="alert">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span><strong>SupportAssist</strong> has an available update — v4.1.2 is ready to install.</span>
+    </div>
+
+    <!-- ── SECTION: Featured ──────────────────────────────── -->
+    <section class="section" aria-labelledby="lbl-featured">
+      <div class="section__head">
+        <span class="section__title" id="lbl-featured">Featured</span>
+        <a class="section__link" href="#">View all</a>
+      </div>
+
+      <div class="grid grid--wide">
+
+        <!--
+          ┌──────────────────────────────────────────────────────┐
+          │  HOW TO ADD A NEW MENU ITEM                          │
+          │  1. Copy one <a class="card"> … </a> block.          │
+          │  2. Set style="--card-color:#hex; --card-bg:#hex"    │
+          │     to colour the stripe and icon background.        │
+          │  3. Update href, SVG icon, title, desc, badge, cta.  │
+          │  4. For a wide horizontal card, add card--featured.  │
+          └──────────────────────────────────────────────────────┘
+        -->
+
+        <!-- ITEM: SupportAssist (featured horizontal) -->
+        <a class="card card--featured" href="#supportassist"
+           style="--card-color:#0076CE; --card-bg:#EBF5FB;">
+          <div class="card__stripe"></div>
+          <div class="card__inner">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#0076CE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/>
+                <path d="M12 16v-4M12 8h.01"/>
+              </svg>
+            </div>
+            <div class="card__body">
+              <span class="card__title">SupportAssist Enterprise</span>
+              <span class="card__desc">Automated diagnostics, health alerts, and proactive support — keeping your fleet online around the clock.</span>
+              <div class="card__actions">
+                <a class="btn btn--primary" href="#supportassist" onclick="return false;">Open App</a>
+                <a class="btn btn--ghost" href="#supportassist" onclick="return false;">Learn More</a>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <!-- ITEM: APEX Cloud (featured horizontal) -->
+        <a class="card card--featured" href="#apex"
+           style="--card-color:#00897B; --card-bg:#E0F5F2;">
+          <div class="card__stripe"></div>
+          <div class="card__inner">
+            <div class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#00897B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <div class="card__body">
+              <span class="card__title">Dell APEX Cloud Services</span>
+              <span class="card__desc">Flexible as-a-service infrastructure that scales with your business — on-premises or multi-cloud.</span>
+              <div class="card__actions">
+                <a class="btn btn--primary" href="#apex" onclick="return false;" style="background:#00897B;border-color:#00897B;">Open App</a>
+                <a class="btn btn--ghost" href="#apex" onclick="return false;">Learn More</a>
+              </div>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ── SECTION: Device Management ────────────────────── -->
+    <section class="section" aria-labelledby="lbl-devices">
+      <div class="section__head">
+        <span class="section__title" id="lbl-devices">Device Management</span>
+        <a class="section__link" href="#">See all</a>
+      </div>
+
+      <div class="grid">
+
+        <!-- ITEM: Command Update -->
+        <a class="card" href="#command-update"
+           style="--card-color:#2E8FD4; --card-bg:#EDF6FD;">
+          <div class="card__stripe"></div>
+          <div class="card__inner">
+            <div class="card__header">
+              <div class="card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#2E8FD4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="16 3 21 3 21 8"/>
+                  <line x1="4" y1="20" x2="21" y2="3"/>
+                  <polyline points="21 16 21 21 16 21"/>
+                  <line x1="15" y1="15" x2="21" y2="21"/>
+                </svg>
+              </div>
+              <span class="card__status card__status--online">Online</span>
+            </div>
+            <span class="card__title">Command | Update</span>
+            <span class="card__desc">BIOS, firmware, and driver updates managed from a single console.</span>
+          </div>
+          <div class="card__foot">
+            <span class="card__badge card__badge--new">Updated</span>
+            <span class="card__cta">
+              Open
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2.5 9.5 9.5 2.5M5 2.5h4.5V7"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+
+        <!-- ITEM: Dell Optimizer -->
+        <a class="card" href="#optimizer"
+           style="--card-color:#00875A; --card-bg:#E3F5EF;">
+          <div class="card__stripe"></div>
+          <div class="card__inner">
+            <div class="card__header">
+              <div class="card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#00875A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+              </div>
+              <span class="card__status card__status--online">Online</span>
+            </div>
+            <span class="card__title">Dell Optimizer</span>
+            <span class="card__desc">AI-driven performance, network, and battery tuning for every user profile.</span>
+          </div>
+          <div class="card__foot">
+            <span class="card__badge card__badge--new">New</span>
+            <span class="card__cta">
+              Open
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2.5 9.5 9.5 2.5M5 2.5h4.5V7"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+
+        <!-- ITEM: Display Manager -->
+        <a class="card" href="#display"
+           style="--card-color:#7E57C2; --card-bg:#F0ECFA;">
+          <div class="card__stripe"></div>
+          <div class="card__inner">
+            <div class="card__header">
+              <div class="card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#7E57C2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+              </div>
+              <span class="card__status card__status--online">Online</span>
+            </div>
+            <span class="card__title">Display Manager</span>
+            <span class="card__desc">Manage brightness, colour profiles, and multi-monitor arrangements.</span>
+          </div>
+          <div class="card__foot">
+            <span class="card__badge">v4.2</span>
+            <span class="card__cta">
+              Open
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2.5 9.5 9.5 2.5M5 2.5h4.5V7"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+
+        <!-- ITEM: Power Manager -->
+        <a class="card" href="#power"
+           style="--card-color:#F59E0B; --card-bg:#FEF3E2;">
+          <div class="card__stripe"></div>
+          <div class="card__inner">
+            <div class="card__header">
+              <div class="card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7h6z"/>
+                </svg>
+              </div>
+              <span class="card__status card__status--warn">Warning</span>
+            </div>
+            <span class="card__title">Power Manager</span>
+            <span class="card__desc">Battery health monitoring and thermal management across devices.</span>
+          </div>
+          <div class="card__foot">
+            <span class="card__badge card__badge--beta">Beta</span>
+            <span class="card__cta">
+              Open
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2.5 9.5 9.5 2.5M5 2.5h4.5V7"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ── SECTION: Security ──────────────────────────────── -->
+    <section class="section" aria-labelledby="lbl-sec">
+      <div class="section__head">
+        <span class="section__title" id="lbl-sec">Security</span>
+        <a class="section__link" href="#">See all</a>
+      </div>
+
+      <div class="grid">
+
+        <!-- ITEM: Security Management -->
+        <a class="card" href="#security-mgmt"
+           style="--card-color:#E53E6D; --card-bg:#FDE8EF;">
+          <div class="card__stripe"></div>
+          <div class="card__inner">
+            <div class="card__header">
+              <div class="card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#E53E6D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </div>
+              <span class="card__status card__status--online">Active</span>
+            </div>
+            <span class="card__title">Security Management</span>
+            <span class="card__desc">Endpoint protection, encryption, and zero-trust policy enforcement.</span>
+          </div>
+          <div class="card__foot">
+            <span class="card__badge card__badge--new">Updated</span>
+            <span class="card__cta">
+              Open
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2.5 9.5 9.5 2.5M5 2.5h4.5V7"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+
+        <!-- ITEM: Digital Locker -->
+        <a class="card" href="#locker"
+           style="--card-color:#0076CE; --card-bg:#EBF5FB;">
+          <div class="card__stripe"></div>
+          <div class="card__inner">
+            <div class="card__header">
+              <div class="card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0076CE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+              <span class="card__status card__status--online">Online</span>
+            </div>
+            <span class="card__title">Digital Locker</span>
+            <span class="card__desc">Access product licences, software keys, and purchase records.</span>
+          </div>
+          <div class="card__foot">
+            <span class="card__badge">My Account</span>
+            <span class="card__cta">
+              Open
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2.5 9.5 9.5 2.5M5 2.5h4.5V7"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+
+        <!-- ITEM: BIOS Connect -->
+        <a class="card" href="#bios"
+           style="--card-color:#5C6BC0; --card-bg:#ECEDFA;">
+          <div class="card__stripe"></div>
+          <div class="card__inner">
+            <div class="card__header">
+              <div class="card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#5C6BC0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="4" width="16" height="16" rx="2"/>
+                  <rect x="9" y="9" width="6" height="6"/>
+                  <line x1="9" y1="2" x2="9" y2="4"/>
+                  <line x1="15" y1="2" x2="15" y2="4"/>
+                  <line x1="9" y1="20" x2="9" y2="22"/>
+                  <line x1="15" y1="20" x2="15" y2="22"/>
+                </svg>
+              </div>
+              <span class="card__status card__status--off">Preview</span>
+            </div>
+            <span class="card__title">BIOS Connect</span>
+            <span class="card__desc">Cloud-hosted BIOS recovery and secure fleet-wide update management.</span>
+          </div>
+          <div class="card__foot">
+            <span class="card__badge card__badge--beta">Beta</span>
+            <span class="card__cta">
+              Open
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2.5 9.5 9.5 2.5M5 2.5h4.5V7"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+
+        <!-- ITEM: AI ThreatGuard (coming soon) -->
+        <a class="card" href="#threat" aria-disabled="true"
+           style="--card-color:#8EA3BC; --card-bg:#F2F5F8; pointer-events:none; opacity:0.5;">
+          <div class="card__stripe"></div>
+          <div class="card__inner">
+            <div class="card__header">
+              <div class="card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#8EA3BC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </div>
+              <span class="card__status card__status--off">Offline</span>
+            </div>
+            <span class="card__title">AI ThreatGuard</span>
+            <span class="card__desc">Behavioural threat detection and automated incident response.</span>
+          </div>
+          <div class="card__foot">
+            <span class="card__badge card__badge--soon">Coming Soon</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ── FOOTER ─────────────────────────────────────────── -->
+    <footer class="footer">
+      <span>© 2026 Dell Technologies Inc. All rights reserved.</span>
+      <span>
+        <a href="#">Privacy Policy</a> &nbsp;·&nbsp;
+        <a href="#">Terms of Use</a> &nbsp;·&nbsp;
+        <a href="#">Accessibility</a> &nbsp;·&nbsp;
+        <a href="#">Contact Support</a>
+      </span>
+    </footer>
+
+  </main>
+</div><!-- /.layout -->
+
+</body>
+</html>
