@@ -6,6 +6,12 @@
   <title>DI AE Control Center</title>
   <style>
     /* =========================================================
+       DEV BANNER TOGGLE
+       Change 'flex' to 'none' to hide the development banner.
+    ========================================================= */
+    .dev-strip { display: flex; }
+
+    /* =========================================================
        RESET
     ========================================================= */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -152,6 +158,54 @@
 
     .nav__title-menu:hover { color: var(--on-blue-primary); }
 
+    /* Nav right-side group: icons + user pill */
+    .nav__right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Icon buttons (notifications, help, etc.) */
+    .nav__icon-btn {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: transparent;
+      color: var(--on-blue-secondary);
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .nav__icon-btn:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.35);
+      color: var(--on-blue-primary);
+    }
+
+    .nav__icon-btn svg { width: 16px; height: 16px; }
+
+    /* Notification dot */
+    .nav__icon-btn--dot::after {
+      content: '';
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #F87171;
+      border: 1.5px solid var(--dell-blue-dark);
+    }
+
+    /* Divider between icons and user pill */
+    .nav__right-divider {
+      width: 1px; height: 22px;
+      background: rgba(255,255,255,0.18);
+      margin: 0 4px;
+    }
+
     /* User pill */
     .nav__user {
       display: flex;
@@ -193,7 +247,6 @@
        DEV WARNING STRIP — sits below the nav, solid yellow
     ========================================================= */
     .dev-strip {
-      display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
@@ -495,10 +548,47 @@
       </div>
     </div>
 
-    <a class="nav__user" href="#" aria-label="Signed in as john.doe@dell.com">
-      <div class="nav__user-avatar" aria-hidden="true">JD</div>
-      <span class="nav__user-email">john.doe@dell.com</span>
-    </a>
+    <div class="nav__right">
+
+      <!-- Notifications -->
+      <a class="nav__icon-btn nav__icon-btn--dot" href="#" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </a>
+
+      <!-- Help -->
+      <a class="nav__icon-btn" href="#" aria-label="Help">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </a>
+
+      <!-- Settings -->
+      <a class="nav__icon-btn" href="#" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+          <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42
+                   M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+      </a>
+
+      <div class="nav__right-divider" aria-hidden="true"></div>
+
+      <!-- User pill — populated by JS -->
+      <a class="nav__user" id="nav-user" href="#" aria-label="User account">
+        <div class="nav__user-avatar" id="nav-avatar" aria-hidden="true"></div>
+        <span class="nav__user-email" id="nav-email"></span>
+      </a>
+
+    </div><!-- /.nav__right -->
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════
@@ -642,7 +732,7 @@
       <!-- ④ Pipelines ─────────────────────────────────── -->
       <a class="card"
          href="#pipelines"
-         style="--accent:#00BFA5; --accent-rgb:0,191,165;"
+         style="--accent:#0EA5E9; --accent-rgb:14,165,233;"
          aria-label="Pipelines — Manage data processing workflows">
 
         <span class="card__num" aria-hidden="true">04</span>
@@ -650,7 +740,7 @@
         <div class="card__icon">
           <!-- Data flow / pipeline icon -->
           <svg viewBox="0 0 24 24" fill="none"
-               stroke="#00BFA5" stroke-width="1.8"
+               stroke="#0EA5E9" stroke-width="1.8"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <ellipse cx="12" cy="5" rx="9" ry="3"/>
             <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
@@ -727,5 +817,78 @@
 
 </div><!-- /.page -->
 
+<script>
+  /* =========================================================
+     USER SESSION
+  ========================================================= */
+
+  /**
+   * getEmail()
+   * Simulates fetching the signed-in user's email from a
+   * session/auth provider. Replace the return value with a
+   * real API call, cookie read, or SSO token parse as needed.
+   *
+   * @returns {string} The current user's email address.
+   */
+  function getEmail() {
+    // TODO: replace with real session lookup, e.g.:
+    //   return sessionStorage.getItem('userEmail');
+    //   return parseJwt(getCookie('token')).email;
+    return 'john.doe@dell.com';
+  }
+
+  /**
+   * getInitials(email)
+   * Derives up to two uppercase initials from an email address.
+   *
+   * Rules (in order):
+   *  1. Strip everything from '@' onwards.
+   *  2. Split the local part on common separators: . _ - +
+   *  3. Take the first letter of each resulting word.
+   *  4. Return the first two initials joined and uppercased.
+   *  5. Fall back to the first character of the email if no
+   *     split is possible.
+   *
+   * Examples:
+   *   john.doe@dell.com   → "JD"
+   *   henry_unah@dell.com → "HU"
+   *   alice@dell.com      → "A"
+   *   j.a.smith@dell.com  → "JA"
+   *
+   * @param  {string} email
+   * @returns {string} 1–2 uppercase initials
+   */
+  function getInitials(email) {
+    if (!email || typeof email !== 'string') return '?';
+
+    const local = email.split('@')[0];               // drop domain
+    const words = local.split(/[._\-+]+/)            // split on separators
+                       .filter(w => w.length > 0);   // remove empty segments
+
+    const initials = words
+      .slice(0, 2)                                   // max two words
+      .map(w => w[0].toUpperCase())                  // first letter, uppercase
+      .join('');
+
+    return initials || email[0].toUpperCase();        // fallback: first char
+  }
+
+  /* =========================================================
+     BOOT — runs once the DOM is ready
+  ========================================================= */
+  document.addEventListener('DOMContentLoaded', () => {
+    const email    = getEmail();
+    const initials = getInitials(email);
+
+    // Populate the nav user pill
+    const avatarEl = document.getElementById('nav-avatar');
+    const emailEl  = document.getElementById('nav-email');
+    const userEl   = document.getElementById('nav-user');
+
+    if (avatarEl) avatarEl.textContent       = initials;
+    if (emailEl)  emailEl.textContent        = email;
+    if (userEl)   userEl.setAttribute('aria-label', `Signed in as ${email}`);
+  });
+</script>
 </body>
 </html>
