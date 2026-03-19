@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Process Tables — DI AE Control Center</title>
+  <style>
+
+    /* ==========================================================
+       DESIGN TOKENS
+    ========================================================== */
+    :root {
+      --dell-blue:        #0076CE;
+      --dell-blue-dark:   #005BA1;
+      --dell-blue-faint:  #EBF5FB;
+
+      --bg:               #F0F4F8;
+      --surface:          #FFFFFF;
+      --border:           #DDE3EA;
+      --border-strong:    #B8C4D0;
+
+      --text-primary:     #0F1C2E;
+      --text-secondary:   #4A6080;
+      --text-muted:       #8EA3BC;
+      --text-on-blue:     #FFFFFF;
+
+      /* Status badge colours */
+      --status-queued-bg:     #EFF6FF;
+      --status-queued-text:   #1D4ED8;
+      --status-queued-border: #BFDBFE;
+
+      --status-running-bg:    #ECFDF5;
+      --status-running-text:  #065F46;
+      --status-running-border:#6EE7B7;
+
+      --status-completed-bg:  #F0FDF4;
+      --status-completed-text:#166534;
+      --status-completed-border:#86EFAC;
+
+      --status-failed-bg:     #FEF2F2;
+      --status-failed-text:   #991B1B;
+      --status-failed-border: #FECACA;
+
+      --status-pending-bg:    #FFFBEB;
+      --status-pending-text:  #92400E;
+      --status-pending-border:#FDE68A;
+
+      --status-cancelled-bg:  #F8FAFC;
+      --status-cancelled-text:#475569;
+      --status-cancelled-border:#CBD5E1;
+
+      --radius-table: 12px;
+      --radius-badge: 100px;
+      --radius-btn:   6px;
+      --transition:   0.18s ease;
+    }
+
+    /* ==========================================================
+       RESET & BASE
+    ========================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ==========================================================
+       PAGE SHELL
+    ========================================================== */
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 24px 64px;
+    }
+
+    /* Page heading */
+    .page__header {
+      margin-bottom: 28px;
+    }
+
+    .page__title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .page__subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ==========================================================
+       TABLES LAYOUT — side by side, equal width
+    ========================================================== */
+    .tables-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;     /* don't stretch — each table is its own height */
+    }
+
+    /* Stack on smaller screens */
+    @media (max-width: 1024px) {
+      .tables-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ==========================================================
+       TABLE CARD — the container wrapping each table
+    ========================================================== */
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-table);
+      overflow: hidden;           /* clips the header corners */
+      box-shadow: 0 1px 4px rgba(15,28,46,.06), 0 4px 16px rgba(15,28,46,.04);
+    }
+
+    /* Card header — title + optional count badge */
+    .table-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--dell-blue);
+      color: var(--text-on-blue);
+    }
+
+    .table-card__title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .table-card__count {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 100px;
+      padding: 2px 10px;
+    }
+
+    /* ==========================================================
+       SCROLL WRAPPER
+       Gives the table a fixed height + both scrollbars.
+       The <thead> stays pinned via position:sticky so column
+       labels are always visible while scrolling vertically.
+    ========================================================== */
+    .table-scroll {
+      overflow-x: auto;               /* horizontal scrollbar  */
+      overflow-y: auto;               /* vertical scrollbar    */
+      max-height: 320px;              /* triggers vertical bar — adjust as needed */
+      border-radius: 0 0 var(--radius-table) var(--radius-table);
+    }
+
+    /* ── Custom scrollbar (WebKit / Blink) ── */
+    .table-scroll::-webkit-scrollbar {
+      width:  8px;   /* vertical bar width  */
+      height: 8px;   /* horizontal bar height */
+    }
+
+    .table-scroll::-webkit-scrollbar-track {
+      background:    #F0F4F8;
+      border-radius: 100px;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb {
+      background:    var(--dell-blue);
+      border-radius: 100px;
+      border:        2px solid #F0F4F8;  /* gives a "floating" look */
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb:hover {
+      background: var(--dell-blue-dark);
+    }
+
+    /* Corner where the two scrollbars meet */
+    .table-scroll::-webkit-scrollbar-corner {
+      background: #F0F4F8;
+    }
+
+    /* ── Firefox scrollbar ── */
+    .table-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: var(--dell-blue) #F0F4F8;
+    }
+
+    /* ==========================================================
+       TABLE
+    ========================================================== */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      min-width: 640px;   /* forces horizontal scroll before columns squash */
+    }
+
+    /* Column headers — sticky so they stay visible on vertical scroll */
+    .data-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--dell-blue-faint);
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);   /* slightly heavier to visually separate from scrolled rows */
+      white-space: nowrap;
+    }
+
+    /* First column left-flush */
+    .data-table thead th:first-child { padding-left: 20px; }
+    .data-table tbody td:first-child  { padding-left: 20px; }
+
+    /* Last column (Action) centred */
+    .data-table thead th:last-child { text-align: center; }
+    .data-table tbody td:last-child  { text-align: center; padding-right: 16px; }
+
+    /* Body rows */
+    .data-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+
+    .data-table tbody tr:last-child { border-bottom: none; }
+
+    .data-table tbody tr:hover { background: var(--dell-blue-faint); }
+
+    /* Data cells */
+    .data-table tbody td {
+      padding: 12px 14px;
+      color: var(--text-primary);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    /* Region cell — slightly bolder */
+    .data-table .cell--region {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Type cell */
+    .data-table .cell--type {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
+    /* Timestamp cells */
+    .data-table .cell--time {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* User cell */
+    .data-table .cell--user {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================
+       STATUS BADGES
+       Usage: <span class="badge badge--running">Running</span>
+    ========================================================== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: var(--radius-badge);
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    /* Dot indicator inside badge */
+    .badge::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .badge--queued {
+      background: var(--status-queued-bg);
+      color:      var(--status-queued-text);
+      border-color: var(--status-queued-border);
+    }
+
+    .badge--running {
+      background: var(--status-running-bg);
+      color:      var(--status-running-text);
+      border-color: var(--status-running-border);
+    }
+
+    .badge--completed {
+      background: var(--status-completed-bg);
+      color:      var(--status-completed-text);
+      border-color: var(--status-completed-border);
+    }
+
+    .badge--failed {
+      background: var(--status-failed-bg);
+      color:      var(--status-failed-text);
+      border-color: var(--status-failed-border);
+    }
+
+    .badge--pending {
+      background: var(--status-pending-bg);
+      color:      var(--status-pending-text);
+      border-color: var(--status-pending-border);
+    }
+
+    .badge--cancelled {
+      background: var(--status-cancelled-bg);
+      color:      var(--status-cancelled-text);
+      border-color: var(--status-cancelled-border);
+    }
+
+    /* ==========================================================
+       ACTION BUTTONS
+       Usage: <button class="btn btn--cancel">Cancel</button>
+    ========================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: var(--radius-btn);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background var(--transition), box-shadow var(--transition),
+                  border-color var(--transition), opacity var(--transition);
+      text-decoration: none;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    /* Primary — Dell blue (View, Retry) */
+    .btn--primary {
+      background:   var(--dell-blue);
+      color:        #fff;
+      border-color: var(--dell-blue);
+    }
+    .btn--primary:hover {
+      background:   var(--dell-blue-dark);
+      border-color: var(--dell-blue-dark);
+      box-shadow:   0 2px 8px rgba(0,118,206,0.30);
+    }
+
+    /* Danger — red (Cancel) */
+    .btn--cancel {
+      background:   #FEF2F2;
+      color:        #991B1B;
+      border-color: #FECACA;
+    }
+    .btn--cancel:hover {
+      background:   #FEE2E2;
+      border-color: #FCA5A5;
+      box-shadow:   0 2px 8px rgba(153,27,27,0.15);
+    }
+
+    /* Ghost — outline only (View details) */
+    .btn--ghost {
+      background:   transparent;
+      color:        var(--dell-blue);
+      border-color: var(--border-strong);
+    }
+    .btn--ghost:hover {
+      background:   var(--dell-blue-faint);
+      border-color: var(--dell-blue);
+    }
+
+    /* Disabled state — apply to any button */
+    .btn:disabled,
+    .btn--disabled {
+      opacity: 0.45;
+      cursor:  not-allowed;
+      pointer-events: none;
+    }
+
+    /* ==========================================================
+       SEVENTH ROW — full-width action row
+       Spans all columns, used for table-level actions like
+       "View All", "Load More", "Export", etc.
+    ========================================================== */
+    .row--action td {
+      padding: 14px 20px;
+      background: var(--dell-blue-faint);
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .row--action td:hover { background: var(--dell-blue-faint); } /* override row hover */
+
+    /* The action row button — wider than regular cell buttons */
+    .btn--row-action {
+      width:        100%;
+      justify-content: center;
+      font-size:    0.78rem;
+      padding:      7px 16px;
+      background:   transparent;
+      color:        var(--dell-blue);
+      border-color: var(--dell-blue);
+      border-radius: var(--radius-btn);
+    }
+
+    .btn--row-action:hover {
+      background:   var(--dell-blue);
+      color:        #fff;
+      box-shadow:   0 2px 10px rgba(0,118,206,0.25);
+    }
+
+    /* ==========================================================
+       EMPTY STATE (optional helper)
+    ========================================================== */
+    .table-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ==========================================================
+       RESPONSIVE — collapse columns on narrow viewports
+    ========================================================== */
+    @media (max-width: 600px) {
+      .page { padding: 24px 12px 48px; }
+
+      /* Hide less critical columns on very small screens */
+      .col--hide-sm { display: none; }
+
+      .data-table tbody td,
+      .data-table thead th { padding: 10px 10px; }
+
+      .data-table tbody td:first-child,
+      .data-table thead th:first-child { padding-left: 12px; }
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Page heading -->
+  <div class="page__header">
+    <h1 class="page__title">Process Monitor</h1>
+    <p class="page__subtitle">Live view of queued and completed processes across all regions.</p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       TWO TABLES SIDE BY SIDE
+  ════════════════════════════════════════════════════════ -->
+  <div class="tables-layout">
+
+    <!-- ── TABLE 1: Processes in Queue ─────────────────── -->
+    <div class="table-card">
+
+      <div class="table-card__header">
+        <span class="table-card__title">Processes in Queue</span>
+        <span class="table-card__count">6 Active</span>
+      </div>
+
+      <div class="table-scroll">
+      <table class="data-table" aria-label="Processes in Queue">
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th class="col--hide-sm">User</th>
+            <th class="col--hide-sm">Start (UTC)</th>
+            <th class="col--hide-sm">End (UTC)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- Row 1 -->
+          <tr>
+            <td class="cell--region">US-East</td>
+            <td class="cell--type">Batch Import</td>
+            <td><span class="badge badge--running">Running</span></td>
+            <td class="cell--user col--hide-sm">j.doe@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 08:14</td>
+            <td class="cell--time col--hide-sm">—</td>
+            <td><button class="btn btn--cancel">Cancel</button></td>
+          </tr>
+
+          <!-- Row 2 -->
+          <tr>
+            <td class="cell--region">EU-West</td>
+            <td class="cell--type">Data Sync</td>
+            <td><span class="badge badge--queued">Queued</span></td>
+            <td class="cell--user col--hide-sm">a.smith@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 08:30</td>
+            <td class="cell--time col--hide-sm">—</td>
+            <td><button class="btn btn--cancel">Cancel</button></td>
+          </tr>
+
+          <!-- Row 3 -->
+          <tr>
+            <td class="cell--region">AP-South</td>
+            <td class="cell--type">ML Training</td>
+            <td><span class="badge badge--running">Running</span></td>
+            <td class="cell--user col--hide-sm">r.patel@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 07:55</td>
+            <td class="cell--time col--hide-sm">—</td>
+            <td><button class="btn btn--cancel">Cancel</button></td>
+          </tr>
+
+          <!-- Row 4 -->
+          <tr>
+            <td class="cell--region">US-West</td>
+            <td class="cell--type">Report Gen</td>
+            <td><span class="badge badge--pending">Pending</span></td>
+            <td class="cell--user col--hide-sm">l.chen@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 09:00</td>
+            <td class="cell--time col--hide-sm">—</td>
+            <td><button class="btn btn--cancel">Cancel</button></td>
+          </tr>
+
+          <!-- Row 5 -->
+          <tr>
+            <td class="cell--region">EU-North</td>
+            <td class="cell--type">Audit Log</td>
+            <td><span class="badge badge--queued">Queued</span></td>
+            <td class="cell--user col--hide-sm">m.johnson@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 09:15</td>
+            <td class="cell--time col--hide-sm">—</td>
+            <td><button class="btn btn--cancel">Cancel</button></td>
+          </tr>
+
+          <!-- Row 6 -->
+          <tr>
+            <td class="cell--region">AP-East</td>
+            <td class="cell--type">Data Export</td>
+            <td><span class="badge badge--pending">Pending</span></td>
+            <td class="cell--user col--hide-sm">k.yamada@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 09:30</td>
+            <td class="cell--time col--hide-sm">—</td>
+            <td><button class="btn btn--cancel">Cancel</button></td>
+          </tr>
+
+          <!-- Row 7 — Full-width action row -->
+          <tr class="row--action">
+            <td colspan="7">
+              <button class="btn btn--row-action">
+                View All Queued Processes →
+              </button>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+      </div><!-- /.table-scroll -->
+    </div><!-- /.table-card -->
+
+
+    <!-- ── TABLE 2: Process Completed ──────────────────── -->
+    <div class="table-card">
+
+      <div class="table-card__header">
+        <span class="table-card__title">Process Completed</span>
+        <span class="table-card__count">6 Records</span>
+      </div>
+
+      <div class="table-scroll">
+      <table class="data-table" aria-label="Process Completed">
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th class="col--hide-sm">User</th>
+            <th class="col--hide-sm">Start (UTC)</th>
+            <th class="col--hide-sm">End (UTC)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- Row 1 -->
+          <tr>
+            <td class="cell--region">US-East</td>
+            <td class="cell--type">Batch Import</td>
+            <td><span class="badge badge--completed">Completed</span></td>
+            <td class="cell--user col--hide-sm">j.doe@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 06:00</td>
+            <td class="cell--time col--hide-sm">2026-03-19 06:48</td>
+            <td><button class="btn btn--ghost">View</button></td>
+          </tr>
+
+          <!-- Row 2 -->
+          <tr>
+            <td class="cell--region">EU-West</td>
+            <td class="cell--type">Data Sync</td>
+            <td><span class="badge badge--failed">Failed</span></td>
+            <td class="cell--user col--hide-sm">a.smith@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 05:30</td>
+            <td class="cell--time col--hide-sm">2026-03-19 05:44</td>
+            <td><button class="btn btn--primary">Retry</button></td>
+          </tr>
+
+          <!-- Row 3 -->
+          <tr>
+            <td class="cell--region">AP-South</td>
+            <td class="cell--type">ML Training</td>
+            <td><span class="badge badge--completed">Completed</span></td>
+            <td class="cell--user col--hide-sm">r.patel@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 04:10</td>
+            <td class="cell--time col--hide-sm">2026-03-19 07:52</td>
+            <td><button class="btn btn--ghost">View</button></td>
+          </tr>
+
+          <!-- Row 4 -->
+          <tr>
+            <td class="cell--region">US-West</td>
+            <td class="cell--type">Report Gen</td>
+            <td><span class="badge badge--failed">Failed</span></td>
+            <td class="cell--user col--hide-sm">l.chen@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 03:00</td>
+            <td class="cell--time col--hide-sm">2026-03-19 03:12</td>
+            <td><button class="btn btn--primary">Retry</button></td>
+          </tr>
+
+          <!-- Row 5 -->
+          <tr>
+            <td class="cell--region">EU-North</td>
+            <td class="cell--type">Audit Log</td>
+            <td><span class="badge badge--completed">Completed</span></td>
+            <td class="cell--user col--hide-sm">m.johnson@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 02:00</td>
+            <td class="cell--time col--hide-sm">2026-03-19 02:31</td>
+            <td><button class="btn btn--ghost">View</button></td>
+          </tr>
+
+          <!-- Row 6 -->
+          <tr>
+            <td class="cell--region">AP-East</td>
+            <td class="cell--type">Data Export</td>
+            <td><span class="badge badge--cancelled">Cancelled</span></td>
+            <td class="cell--user col--hide-sm">k.yamada@dell.com</td>
+            <td class="cell--time col--hide-sm">2026-03-19 01:15</td>
+            <td class="cell--time col--hide-sm">2026-03-19 01:17</td>
+            <td><button class="btn btn--ghost">View</button></td>
+          </tr>
+
+          <!-- Row 7 — Full-width action row -->
+          <tr class="row--action">
+            <td colspan="7">
+              <button class="btn btn--row-action">
+                View All Completed Processes →
+              </button>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+      </div><!-- /.table-scroll -->
+    </div><!-- /.table-card -->
+
+  </div><!-- /.tables-layout -->
+</div><!-- /.page -->
+
+</body>
+</html>

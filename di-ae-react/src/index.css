@@ -1,0 +1,21 @@
+/* MUI CssBaseline handles the reset — only minimal globals here */
+*, *::before, *::after { box-sizing: border-box; }
+
+body { margin: 0; }
+
+/* Dot-grid overlay on the Dell blue background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
