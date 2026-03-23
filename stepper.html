@@ -43,12 +43,11 @@
       --step-done-light:  #DCFCE7;
 
       /* status badges */
-      --badge-queued-bg:    #EFF6FF; --badge-queued-text:  #1D4ED8; --badge-queued-bd:  #BFDBFE;
-      --badge-running-bg:   #ECFDF5; --badge-running-text: #065F46; --badge-running-bd: #6EE7B7;
-      --badge-done-bg:      #F0FDF4; --badge-done-text:    #166534; --badge-done-bd:    #86EFAC;
-      --badge-failed-bg:    #FEF2F2; --badge-failed-text:  #991B1B; --badge-failed-bd:  #FECACA;
-      --badge-pending-bg:   #FFFBEB; --badge-pending-text: #92400E; --badge-pending-bd: #FDE68A;
-      --badge-cancel-bg:    #F8FAFC; --badge-cancel-text:  #475569; --badge-cancel-bd:  #CBD5E1;
+      --badge-queued-bg:    #EFF6FF; --badge-queued-text:    #1D4ED8; --badge-queued-bd:    #BFDBFE;
+      --badge-running-bg:   #FFFBEB; --badge-running-text:   #92400E; --badge-running-bd:   #FCD34D;
+      --badge-success-bg:   #F0FDF4; --badge-success-text:   #166534; --badge-success-bd:   #86EFAC;
+      --badge-failed-bg:    #FEF2F2; --badge-failed-text:    #991B1B; --badge-failed-bd:    #FECACA;
+      --badge-cancelled-bg: #F8FAFC; --badge-cancelled-text: #475569; --badge-cancelled-bd: #CBD5E1;
     }
 
     /* ============================================================
@@ -268,6 +267,7 @@
       border-radius: 14px;
       padding: 32px 36px;
       box-shadow: 0 1px 4px rgba(15,28,46,.06), 0 4px 16px rgba(15,28,46,.04);
+      min-height: 620px;
     }
 
     .step-card__title {
@@ -317,6 +317,52 @@
     .bootstrap-select .dropdown-item.active,
     .bootstrap-select .dropdown-item:active { background: var(--dell-blue); }
 
+
+    /* ============================================================
+       STEP 2 — Notes / requirements
+    ============================================================ */
+    .note-box {
+      display: flex; gap: 10px;
+      background: #FFFBEB; border: 1px solid #FCD34D; border-left: 4px solid #F59E0B;
+      border-radius: 8px; padding: 13px 16px; margin-bottom: 20px;
+      font-size: .84rem; color: #78350F; line-height: 1.6;
+    }
+    .note-box i { color: #D97706; flex-shrink: 0; margin-top: 2px; }
+
+    .requirements-box {
+      background: var(--dell-blue-faint); border: 1px solid #BFDBFE;
+      border-left: 4px solid var(--dell-blue);
+      border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;
+    }
+    .requirements-box__title {
+      font-size: .78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .07em; color: var(--dell-blue); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .requirements-box ul {
+      margin: 0; padding-left: 18px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .requirements-box li { font-size: .83rem; color: #1e3a5f; line-height: 1.55; }
+    .requirements-box li code {
+      background: rgba(0,118,206,.1); color: var(--dell-blue);
+      padding: 1px 5px; border-radius: 4px; font-size: .8rem; font-family: monospace;
+    }
+
+    .upload-context {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      flex-wrap: wrap; gap: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;
+    }
+    .upload-context__label { font-size: .75rem; color: var(--text-muted); margin-bottom: 3px; }
+    .upload-context__value { font-size: .92rem; font-weight: 700; color: var(--text-primary); }
+    .upload-context__hint  { font-size: .76rem; color: var(--text-muted); font-style: italic; margin-top: 4px; }
+    .upload-context__warn  {
+      font-size: .76rem; color: #92400E; background: #FFFBEB;
+      border: 1px solid #FCD34D; border-radius: 6px;
+      padding: 5px 10px; display: flex; align-items: center; gap: 6px; align-self: center;
+    }
 
     /* ============================================================
        STEP 2 — File uploader
@@ -482,10 +528,20 @@
     .data-table tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
     .data-table tbody tr:last-child { border-bottom: none; }
     .data-table tbody tr:hover { background: var(--dell-blue-faint); }
+    .data-table tbody tr.row--cancelled { background: #F1F5F9; }
+    .data-table tbody tr.row--cancelled td { color: var(--text-muted); }
+    .data-table tbody tr.row--cancelled:hover { background: #E2E8F0; }
     .data-table tbody td { padding: 11px 14px; vertical-align: middle; white-space: nowrap; }
     .data-table tbody td:first-child  { padding-left: 18px; font-weight: 600; }
     .data-table tbody td:last-child   { text-align: center; padding-right: 14px; }
     .cell--type  { font-size: .8rem; color: var(--text-secondary); }
+    .type-stack  { display: flex; flex-direction: column; gap: 3px; }
+    .type-row    { display: flex; align-items: baseline; gap: 6px; font-size: .78rem; }
+    .type-label  {
+      font-size: .63rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--text-muted); min-width: 54px; flex-shrink: 0;
+    }
+    .type-value  { color: var(--text-secondary); }
     .cell--time  { font-size: .78rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
     .cell--user  { font-size: .8rem;  color: var(--text-secondary); }
 
@@ -496,12 +552,11 @@
       padding: 3px 9px; border-radius: 100px; border: 1px solid transparent; white-space: nowrap;
     }
     .badge-status::before { content:''; display:inline-block; width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
-    .badge--queued    { background:var(--badge-queued-bg);  color:var(--badge-queued-text);  border-color:var(--badge-queued-bd); }
-    .badge--running   { background:var(--badge-running-bg); color:var(--badge-running-text); border-color:var(--badge-running-bd); }
-    .badge--completed { background:var(--badge-done-bg);    color:var(--badge-done-text);    border-color:var(--badge-done-bd); }
-    .badge--failed    { background:var(--badge-failed-bg);  color:var(--badge-failed-text);  border-color:var(--badge-failed-bd); }
-    .badge--pending   { background:var(--badge-pending-bg); color:var(--badge-pending-text); border-color:var(--badge-pending-bd); }
-    .badge--cancelled { background:var(--badge-cancel-bg);  color:var(--badge-cancel-text);  border-color:var(--badge-cancel-bd); }
+    .badge--queued    { background:var(--badge-queued-bg);    color:var(--badge-queued-text);    border-color:var(--badge-queued-bd); }
+    .badge--running   { background:var(--badge-running-bg);   color:var(--badge-running-text);   border-color:var(--badge-running-bd); }
+    .badge--success   { background:var(--badge-success-bg);   color:var(--badge-success-text);   border-color:var(--badge-success-bd); }
+    .badge--failed    { background:var(--badge-failed-bg);    color:var(--badge-failed-text);    border-color:var(--badge-failed-bd); }
+    .badge--cancelled { background:var(--badge-cancelled-bg); color:var(--badge-cancelled-text); border-color:var(--badge-cancelled-bd); }
 
     /* cell action buttons */
     .btn-cell {
@@ -651,7 +706,7 @@
       .nav-bar { padding: 0 16px; }
       .nav__user-email { display: none; }
       .page-wrapper { padding: 24px 14px 60px; }
-      .step-card { padding: 24px 18px; }
+      .step-card { padding: 24px 18px; min-height: 480px; }
       .stepper__track { left: calc(12% + 14px); right: calc(12% + 14px); }
       .step-item__label { font-size: .62rem; }
     }
@@ -831,19 +886,49 @@
   <div class="step-panel" id="panel-2">
     <div class="step-card">
       <h2 class="step-card__title"><i class="fa-solid fa-cloud-arrow-up me-2 text-primary"></i>Upload PreLeads</h2>
-      <p class="step-card__sub">
-        Upload your pre-qualified leads file for this process. Accepted formats are <strong>.csv</strong> and <strong>.xlsx</strong>.
-        Ensure your file includes at minimum the columns: <em>Account ID, Contact Email, Segment</em>.
-        Maximum file size is <strong>50 MB</strong>.
-      </p>
+      <p class="step-card__sub">Upload a zipped target list for this process.</p>
 
+      <!-- Note -->
+      <div class="note-box">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span><strong>Note:</strong> If you ran the Selection Module for this process, this step is not required.</span>
+      </div>
+
+      <!-- Upload context (region / type) -->
+      <div class="upload-context">
+        <div>
+          <div class="upload-context__label">Uploading Target List for</div>
+          <div class="upload-context__value" id="upload-context-value">—</div>
+          <div class="upload-context__hint">Selected in the previous step</div>
+        </div>
+        <div class="upload-context__warn">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          If this is incorrect, go back to the previous step and select a different Region / Type combination.
+        </div>
+      </div>
+
+      <!-- Zip file requirements -->
+      <div class="requirements-box">
+        <div class="requirements-box__title">
+          <i class="fa-solid fa-file-zipper"></i> Zip File Requirements
+        </div>
+        <ul>
+          <li>The Zip must only contain Excel files, without nested folders.</li>
+          <li>You can have one Excel per Play ID or one Excel file with all Play IDs inside.</li>
+          <li>The first Excel sheet must only contain two columns: <code>account_id</code> and <code>play_id</code>.</li>
+          <li>In each Excel file the first sheet must be the one with the <code>account_id</code> and <code>play_id</code> columns. Additional sheets are allowed but will be ignored.</li>
+          <li>The <code>account_id</code> column must <strong>only</strong> contain numerical characters.</li>
+        </ul>
+      </div>
+
+      <!-- File uploader -->
       <div class="upload-zone" id="upload-zone">
-        <input type="file" id="file-input" accept=".csv,.xlsx,.xls" aria-label="Upload pre-leads file" />
-        <div class="upload-zone__icon"><i class="fa-solid fa-file-arrow-up"></i></div>
+        <input type="file" id="file-input" accept=".zip" aria-label="Upload pre-leads zip file" />
+        <div class="upload-zone__icon"><i class="fa-solid fa-file-zipper"></i></div>
         <p class="upload-zone__label">
           <span class="upload-zone__link">Click to browse</span> or drag &amp; drop your file here
         </p>
-        <p class="upload-zone__hint">CSV or XLSX · Max 50 MB</p>
+        <p class="upload-zone__hint">.zip · Max 50 MB</p>
       </div>
 
       <div id="file-name-display">
@@ -858,26 +943,19 @@
     <div class="step-card">
       <h2 class="step-card__title"><i class="fa-solid fa-sliders me-2 text-primary"></i>Configuration</h2>
       <p class="step-card__sub">
-        Configure the process parameters before execution. The Configurator lets you define scoring weights,
-        filtering rules, output mappings, and notification settings.
+        Use the Config Tool to set up the configuration for this run before proceeding.
       </p>
 
       <div class="config-info-box">
         <i class="fa-solid fa-circle-info"></i>
-        The Configurator opens in a new tab. Complete your configuration, save it, then return here and
-        click <strong>Next</strong> to proceed. Your saved configuration will be automatically linked to
-        this process by your session ID.
+        The Config Tool opens in a new tab. Update the configuration for this run and submit it to the
+        database. Once submitted, close the Config Tool tab and click <strong>Next</strong> to continue.
       </div>
 
       <div class="mb-3">
-        <p class="mb-3" style="font-size:.86rem; color:var(--text-secondary); line-height:1.7;">
-          <strong>What you can configure:</strong><br>
-          Scoring thresholds · Audience filters · Output field mappings ·
-          Iteration limits · Notification webhooks · Schedule overrides
-        </p>
         <a class="btn-configurator" href="#" target="_blank" rel="noopener noreferrer">
           <i class="fa-solid fa-arrow-up-right-from-square"></i>
-          Open Configurator Form
+          Open Config Tool
         </a>
       </div>
     </div>
@@ -921,16 +999,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td>US-East</td><td class="cell--type">Batch Import</td><td><span class="badge-status badge--running">Running</span></td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 08:14</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
-                  <tr><td>EU-West</td><td class="cell--type">Data Sync</td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">a.smith@dell.com</td><td class="cell--time">2026-03-20 08:30</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
-                  <tr><td>AP-South</td><td class="cell--type">ML Training</td><td><span class="badge-status badge--running">Running</span></td><td class="cell--user">r.patel@dell.com</td><td class="cell--time">2026-03-20 07:55</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
-                  <tr><td>US-West</td><td class="cell--type">Report Gen</td><td><span class="badge-status badge--pending">Pending</span></td><td class="cell--user">l.chen@dell.com</td><td class="cell--time">2026-03-20 09:00</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
-                  <tr><td>EU-North</td><td class="cell--type">Audit Log</td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">m.johnson@dell.com</td><td class="cell--time">2026-03-20 09:15</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
-                  <tr><td>AP-East</td><td class="cell--type">Data Export</td><td><span class="badge-status badge--pending">Pending</span></td><td class="cell--user">k.yamada@dell.com</td><td class="cell--time">2026-03-20 09:30</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
-                  <tr><td>US-West</td><td class="cell--type">Batch Import</td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">s.kim@dell.com</td><td class="cell--time">2026-03-20 09:45</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
-                  <tr><td>EU-West</td><td class="cell--type">Report Gen</td><td><span class="badge-status badge--running">Running</span></td><td class="cell--user">t.nguyen@dell.com</td><td class="cell--time">2026-03-20 10:00</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
-                  <tr><td>AP-East</td><td class="cell--type">ML Training</td><td><span class="badge-status badge--pending">Pending</span></td><td class="cell--user">o.garcia@dell.com</td><td class="cell--time">2026-03-20 10:15</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
-                  <tr><td>US-East</td><td class="cell--type">Data Sync</td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">e.brown@dell.com</td><td class="cell--time">2026-03-20 10:30</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>US-East</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Batch</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Prospecting</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Sequential</span></div></div></td><td><span class="badge-status badge--running">Running</span></td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 08:14</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>EU-West</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Real-Time</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Nurture</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Parallel</span></div></div></td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">a.smith@dell.com</td><td class="cell--time">2026-03-20 08:30</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>AP-South</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Scheduled</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Retention</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Distributed</span></div></div></td><td><span class="badge-status badge--running">Running</span></td><td class="cell--user">r.patel@dell.com</td><td class="cell--time">2026-03-20 07:55</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>US-West</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">On-Demand</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Upsell</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Sequential</span></div></div></td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">l.chen@dell.com</td><td class="cell--time">2026-03-20 09:00</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>EU-North</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Batch</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Reactivation</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Hybrid</span></div></div></td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">m.johnson@dell.com</td><td class="cell--time">2026-03-20 09:15</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>AP-East</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Scheduled</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Prospecting</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Parallel</span></div></div></td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">k.yamada@dell.com</td><td class="cell--time">2026-03-20 09:30</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>US-West</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Batch</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Nurture</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Sequential</span></div></div></td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">s.kim@dell.com</td><td class="cell--time">2026-03-20 09:45</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>EU-West</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Real-Time</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Retention</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Distributed</span></div></div></td><td><span class="badge-status badge--running">Running</span></td><td class="cell--user">t.nguyen@dell.com</td><td class="cell--time">2026-03-20 10:00</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>AP-East</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">On-Demand</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Upsell</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Hybrid</span></div></div></td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">o.garcia@dell.com</td><td class="cell--time">2026-03-20 10:15</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>US-East</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Event-Triggered</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Reactivation</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Parallel</span></div></div></td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">e.brown@dell.com</td><td class="cell--time">2026-03-20 10:30</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
                 </tbody>
               </table>
             </div>
@@ -952,16 +1030,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td>US-East</td><td class="cell--type">Batch Import</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 06:00</td><td class="cell--time">2026-03-20 06:48</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
-                  <tr><td>EU-West</td><td class="cell--type">Data Sync</td><td><span class="badge-status badge--failed">Failed</span></td><td class="cell--user">a.smith@dell.com</td><td class="cell--time">2026-03-20 05:30</td><td class="cell--time">2026-03-20 05:44</td><td><button class="btn-cell btn-cell--primary">Retry</button></td></tr>
-                  <tr><td>AP-South</td><td class="cell--type">ML Training</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">r.patel@dell.com</td><td class="cell--time">2026-03-20 04:10</td><td class="cell--time">2026-03-20 07:52</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
-                  <tr><td>US-West</td><td class="cell--type">Report Gen</td><td><span class="badge-status badge--failed">Failed</span></td><td class="cell--user">l.chen@dell.com</td><td class="cell--time">2026-03-20 03:00</td><td class="cell--time">2026-03-20 03:12</td><td><button class="btn-cell btn-cell--primary">Retry</button></td></tr>
-                  <tr><td>EU-North</td><td class="cell--type">Audit Log</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">m.johnson@dell.com</td><td class="cell--time">2026-03-20 02:00</td><td class="cell--time">2026-03-20 02:31</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
-                  <tr><td>AP-East</td><td class="cell--type">Data Export</td><td><span class="badge-status badge--cancelled">Cancelled</span></td><td class="cell--user">k.yamada@dell.com</td><td class="cell--time">2026-03-20 01:15</td><td class="cell--time">2026-03-20 01:17</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
-                  <tr><td>US-West</td><td class="cell--type">Batch Import</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">s.kim@dell.com</td><td class="cell--time">2026-03-20 00:45</td><td class="cell--time">2026-03-20 01:10</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
-                  <tr><td>EU-West</td><td class="cell--type">Report Gen</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">t.nguyen@dell.com</td><td class="cell--time">2026-03-19 23:30</td><td class="cell--time">2026-03-20 00:05</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
-                  <tr><td>AP-East</td><td class="cell--type">ML Training</td><td><span class="badge-status badge--failed">Failed</span></td><td class="cell--user">o.garcia@dell.com</td><td class="cell--time">2026-03-19 22:00</td><td class="cell--time">2026-03-19 22:14</td><td><button class="btn-cell btn-cell--primary">Retry</button></td></tr>
-                  <tr><td>US-East</td><td class="cell--type">Data Sync</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">e.brown@dell.com</td><td class="cell--time">2026-03-19 21:00</td><td class="cell--time">2026-03-19 21:43</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>US-East</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Batch</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Prospecting</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Sequential</span></div></div></td><td><span class="badge-status badge--success">Completed</span></td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 06:00</td><td class="cell--time">2026-03-20 06:48</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>EU-West</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Real-Time</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Nurture</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Parallel</span></div></div></td><td><span class="badge-status badge--failed">Failed</span></td><td class="cell--user">a.smith@dell.com</td><td class="cell--time">2026-03-20 05:30</td><td class="cell--time">2026-03-20 05:44</td><td><button class="btn-cell btn-cell--primary">Retry</button></td></tr>
+                  <tr><td>AP-South</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Scheduled</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Retention</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Distributed</span></div></div></td><td><span class="badge-status badge--success">Completed</span></td><td class="cell--user">r.patel@dell.com</td><td class="cell--time">2026-03-20 04:10</td><td class="cell--time">2026-03-20 07:52</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>US-West</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">On-Demand</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Upsell</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Sequential</span></div></div></td><td><span class="badge-status badge--failed">Failed</span></td><td class="cell--user">l.chen@dell.com</td><td class="cell--time">2026-03-20 03:00</td><td class="cell--time">2026-03-20 03:12</td><td><button class="btn-cell btn-cell--primary">Retry</button></td></tr>
+                  <tr><td>EU-North</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Batch</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Reactivation</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Hybrid</span></div></div></td><td><span class="badge-status badge--success">Completed</span></td><td class="cell--user">m.johnson@dell.com</td><td class="cell--time">2026-03-20 02:00</td><td class="cell--time">2026-03-20 02:31</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>AP-East</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Scheduled</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Prospecting</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Parallel</span></div></div></td><td><span class="badge-status badge--cancelled">Cancelled</span></td><td class="cell--user">k.yamada@dell.com</td><td class="cell--time">2026-03-20 01:15</td><td class="cell--time">2026-03-20 01:17</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>US-West</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Batch</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Nurture</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Sequential</span></div></div></td><td><span class="badge-status badge--success">Completed</span></td><td class="cell--user">s.kim@dell.com</td><td class="cell--time">2026-03-20 00:45</td><td class="cell--time">2026-03-20 01:10</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>EU-West</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Real-Time</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Retention</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Distributed</span></div></div></td><td><span class="badge-status badge--success">Completed</span></td><td class="cell--user">t.nguyen@dell.com</td><td class="cell--time">2026-03-19 23:30</td><td class="cell--time">2026-03-20 00:05</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>AP-East</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">On-Demand</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Upsell</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Hybrid</span></div></div></td><td><span class="badge-status badge--failed">Failed</span></td><td class="cell--user">o.garcia@dell.com</td><td class="cell--time">2026-03-19 22:00</td><td class="cell--time">2026-03-19 22:14</td><td><button class="btn-cell btn-cell--primary">Retry</button></td></tr>
+                  <tr><td>US-East</td><td><div class="type-stack"><div class="type-row"><span class="type-label">Process</span><span class="type-value">Event-Triggered</span></div><div class="type-row"><span class="type-label">Campaign</span><span class="type-value">Reactivation</span></div><div class="type-row"><span class="type-label">Exec</span><span class="type-value">Parallel</span></div></div></td><td><span class="badge-status badge--success">Completed</span></td><td class="cell--user">e.brown@dell.com</td><td class="cell--time">2026-03-19 21:00</td><td class="cell--time">2026-03-19 21:43</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
                 </tbody>
               </table>
             </div>
@@ -988,8 +1066,8 @@
             <span class="table-card__title">Iterations — Review &amp; Validate</span>
             <span class="table-card__count">8 Iterations</span>
           </div>
-          <div class="table-scroll" style="max-height:480px;">
-            <table class="data-table" aria-label="Valid Iterations">
+          <div class="table-scroll">
+            <table class="data-table" id="iterations-table" aria-label="Valid Iterations">
               <thead>
                 <tr>
                   <th style="width:42px; text-align:center;">
@@ -1006,17 +1084,18 @@
                 </tr>
               </thead>
               <tbody id="iterations-tbody">
-                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>001</td><td>US-East</td><td class="cell--type">Batch Import</td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 06:00</td><td>42</td><td><span class="badge-status badge--completed">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>001</td><td>US-East</td><td class="cell--type">Batch Import</td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 06:00</td><td>42</td><td><span class="badge-status badge--success">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
                 <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>002</td><td>EU-West</td><td class="cell--type">Data Sync</td><td class="cell--user">a.smith@dell.com</td><td class="cell--time">2026-03-20 05:30</td><td>18</td><td><span class="badge-status badge--failed">Failed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
-                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>003</td><td>AP-South</td><td class="cell--type">ML Training</td><td class="cell--user">r.patel@dell.com</td><td class="cell--time">2026-03-20 04:10</td><td>76</td><td><span class="badge-status badge--completed">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>003</td><td>AP-South</td><td class="cell--type">ML Training</td><td class="cell--user">r.patel@dell.com</td><td class="cell--time">2026-03-20 04:10</td><td>76</td><td><span class="badge-status badge--success">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
                 <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>004</td><td>US-West</td><td class="cell--type">Report Gen</td><td class="cell--user">l.chen@dell.com</td><td class="cell--time">2026-03-20 03:00</td><td>5</td><td><span class="badge-status badge--failed">Failed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
-                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>005</td><td>EU-North</td><td class="cell--type">Audit Log</td><td class="cell--user">m.johnson@dell.com</td><td class="cell--time">2026-03-20 02:00</td><td>31</td><td><span class="badge-status badge--completed">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>005</td><td>EU-North</td><td class="cell--type">Audit Log</td><td class="cell--user">m.johnson@dell.com</td><td class="cell--time">2026-03-20 02:00</td><td>31</td><td><span class="badge-status badge--success">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
                 <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>006</td><td>AP-East</td><td class="cell--type">Data Export</td><td class="cell--user">k.yamada@dell.com</td><td class="cell--time">2026-03-20 01:15</td><td>9</td><td><span class="badge-status badge--cancelled">Cancelled</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
-                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>007</td><td>US-East</td><td class="cell--type">Batch Import</td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 00:30</td><td>54</td><td><span class="badge-status badge--completed">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>007</td><td>US-East</td><td class="cell--type">Batch Import</td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 00:30</td><td>54</td><td><span class="badge-status badge--success">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
                 <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>008</td><td>EU-West</td><td class="cell--type">ML Training</td><td class="cell--user">a.smith@dell.com</td><td class="cell--time">2026-03-19 23:00</td><td>63</td><td><span class="badge-status badge--running">Running</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
               </tbody>
             </table>
           </div>
+          <div class="table-pagination" id="iterations-pagination"></div>
         </div>
 
         <!-- Confirm action -->
@@ -1163,6 +1242,18 @@ $(function () {
     // step count
     $('#step-count').text(`Step ${step} of ${TOTAL}`);
 
+    // populate upload context on step 2
+    if (step === 2) {
+      const region      = $('#sel-region').find('option:selected').text()      || '—';
+      const processType = $('#sel-process-type').find('option:selected').text() || '—';
+      const campaign    = $('#sel-campaign-type').find('option:selected').text() || '—';
+      const exec        = $('#sel-exec-type').find('option:selected').text()    || '—';
+      const allSet = region !== '—' && processType !== '—' && campaign !== '—' && exec !== '—';
+      $('#upload-context-value').text(
+        allSet ? `${region} · ${processType} / ${campaign} / ${exec}` : 'Not yet specified — complete Step 1 first'
+      );
+    }
+
     // populate output on step 5
     if (step === 5) populateOutput();
 
@@ -1268,6 +1359,12 @@ $(function () {
   initPagination('queue-table',     'queue-pagination',     5);
   initPagination('completed-table', 'completed-pagination', 5);
 
+  // Highlight cancelled rows across all tables
+  $('.badge--cancelled').closest('tr').addClass('row--cancelled');
+
+  // Iterations pagination is initialised once when the section first becomes visible
+  let iterationsPaginationReady = false;
+
   /* ============================================================
      STEP 4 — ADD PROCESS TO QUEUE
   ============================================================ */
@@ -1283,6 +1380,11 @@ $(function () {
     $('#valid-iterations-section').fadeIn(250);
     $(this).addClass('is-active');
     $('#btn-back-tables').addClass('visible');
+    if (!iterationsPaginationReady) {
+      initPagination('iterations-table', 'iterations-pagination', 5);
+      $('#iterations-table .badge--cancelled').closest('tr').addClass('row--cancelled');
+      iterationsPaginationReady = true;
+    }
   });
 
   $('#btn-back-tables').on('click', function () {
