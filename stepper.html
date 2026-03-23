@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Process — DI AE Control Center</title>
+
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <!-- Bootstrap Select -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* ============================================================
+       DEV BANNER TOGGLE — change 'flex' to 'none' to hide
+    ============================================================ */
+    .dev-strip { display: flex; }
+
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --dell-blue:        #0076CE;
+      --dell-blue-dark:   #005BA1;
+      --dell-blue-faint:  #EBF5FB;
+      --bg:               #F0F4F8;
+      --surface:          #FFFFFF;
+      --border:           #DDE3EA;
+      --border-strong:    #B8C4D0;
+      --text-primary:     #0F1C2E;
+      --text-secondary:   #4A6080;
+      --text-muted:       #8EA3BC;
+      --on-blue-primary:  #FFFFFF;
+      --on-blue-secondary:rgba(255,255,255,0.72);
+      --on-blue-muted:    rgba(255,255,255,0.45);
+
+      /* step states */
+      --step-upcoming:    #CBD5E1;
+      --step-active:      var(--dell-blue);
+      --step-done:        #16A34A;
+      --step-done-light:  #DCFCE7;
+
+      /* status badges */
+      --badge-queued-bg:    #EFF6FF; --badge-queued-text:  #1D4ED8; --badge-queued-bd:  #BFDBFE;
+      --badge-running-bg:   #ECFDF5; --badge-running-text: #065F46; --badge-running-bd: #6EE7B7;
+      --badge-done-bg:      #F0FDF4; --badge-done-text:    #166534; --badge-done-bd:    #86EFAC;
+      --badge-failed-bg:    #FEF2F2; --badge-failed-text:  #991B1B; --badge-failed-bd:  #FECACA;
+      --badge-pending-bg:   #FFFBEB; --badge-pending-text: #92400E; --badge-pending-bd: #FDE68A;
+      --badge-cancel-bg:    #F8FAFC; --badge-cancel-text:  #475569; --badge-cancel-bd:  #CBD5E1;
+    }
+
+    /* ============================================================
+       BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ============================================================
+       NAV
+    ============================================================ */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 36px;
+      height: 58px;
+      background: var(--dell-blue-dark);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .nav__brand { display: flex; align-items: center; gap: 14px; }
+    .nav__logo-ring {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.9);
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .nav__vdivider { width: 1px; height: 22px; background: rgba(255,255,255,0.25); }
+    .nav__title-group { display: flex; align-items: center; white-space: nowrap; }
+    .nav__title-app {
+      font-size: .95rem; font-weight: 700; color: #fff;
+      text-decoration: none; transition: opacity .15s;
+    }
+    .nav__title-app:hover { opacity: .8; }
+    .nav__title-sep { color: rgba(255,255,255,0.4); margin: 0 7px; font-size: .95rem; }
+    .nav__title-page {
+      font-size: .88rem; font-weight: 600; color: rgba(255,255,255,0.72);
+      text-decoration: none; transition: color .15s;
+    }
+    .nav__title-page:hover { color: #fff; }
+    .nav__right { display: flex; align-items: center; gap: 6px; }
+    .nav__icon-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18); background: transparent;
+      color: rgba(255,255,255,0.72); display: flex; align-items: center;
+      justify-content: center; text-decoration: none; cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s;
+      position: relative; flex-shrink: 0;
+    }
+    .nav__icon-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.35); color:#fff; }
+    .nav__icon-btn svg { width: 16px; height: 16px; }
+    .nav__icon-btn--dot::after {
+      content:''; position:absolute; top:6px; right:6px;
+      width:7px; height:7px; border-radius:50%;
+      background:#F87171; border:1.5px solid var(--dell-blue-dark);
+    }
+    .nav__rdivider { width:1px; height:22px; background:rgba(255,255,255,0.18); margin:0 4px; }
+    .nav__user {
+      display:flex; align-items:center; gap:8px; text-decoration:none;
+      padding:4px 12px 4px 4px; border:1px solid rgba(255,255,255,0.20);
+      border-radius:100px; transition:background .18s, border-color .18s;
+    }
+    .nav__user:hover { background:rgba(255,255,255,0.10); border-color:rgba(255,255,255,0.35); }
+    .nav__user-avatar {
+      width:26px; height:26px; border-radius:50%;
+      background:rgba(255,255,255,0.20); display:flex; align-items:center;
+      justify-content:center; font-size:.65rem; font-weight:800;
+      color:#fff; flex-shrink:0;
+    }
+    .nav__user-email { font-size:.75rem; font-weight:500; color:rgba(255,255,255,0.72); white-space:nowrap; }
+
+    /* ============================================================
+       DEV STRIP
+    ============================================================ */
+    .dev-strip {
+      align-items: center; justify-content: center; gap: 8px;
+      padding: 7px 20px; background: #FCD34D; border-bottom: 1px solid #F59E0B;
+      font-size: .7rem; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: #78350F;
+      position: sticky; top: 58px; z-index: 199;
+    }
+    .dev-strip i { color: #92400E; }
+
+    /* ============================================================
+       PAGE WRAPPER
+    ============================================================ */
+    .page-wrapper {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 36px 40px 80px;
+    }
+
+    /* ============================================================
+       STEPPER HEADER
+    ============================================================ */
+    .stepper {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      margin-bottom: 40px;
+      position: relative;
+      padding: 0 8px;
+    }
+
+    /* horizontal connector track */
+    .stepper__track {
+      position: absolute;
+      top: 20px;
+      left: calc(10% + 20px);
+      right: calc(10% + 20px);
+      height: 3px;
+      background: var(--step-upcoming);
+      border-radius: 99px;
+      z-index: 0;
+    }
+
+    /* filled progress over the track */
+    .stepper__progress {
+      height: 100%;
+      background: var(--dell-blue);
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* individual step item */
+    .step-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+      cursor: pointer;
+    }
+    .step-item:hover .step-item__circle {
+      box-shadow: 0 0 0 4px var(--bg), 0 0 0 7px rgba(0,118,206,0.18);
+    }
+    .step-item.is-done:hover .step-item__circle {
+      box-shadow: 0 0 0 4px var(--bg), 0 0 0 7px rgba(22,163,74,0.18);
+    }
+
+    /* circle indicator */
+    .step-item__circle {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      border: 3px solid var(--step-upcoming);
+      background: var(--bg);
+      color: var(--step-upcoming);
+      transition: all 0.3s ease;
+      box-shadow: 0 0 0 4px var(--bg);   /* gap between circle and track */
+    }
+
+    /* step label */
+    .step-item__label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: center;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      transition: color 0.3s ease;
+    }
+
+    /* ── active state ── */
+    .step-item.is-active .step-item__circle {
+      border-color: var(--dell-blue);
+      background: var(--dell-blue);
+      color: #fff;
+      box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px rgba(0,118,206,0.20);
+    }
+    .step-item.is-active .step-item__label {
+      color: var(--dell-blue);
+      font-weight: 700;
+    }
+
+    /* ── completed state ── */
+    .step-item.is-done .step-item__circle {
+      border-color: var(--step-done);
+      background: var(--step-done);
+      color: #fff;
+    }
+    .step-item.is-done .step-item__label {
+      color: var(--step-done);
+    }
+
+    /* ============================================================
+       STEP CONTENT PANELS
+    ============================================================ */
+    .step-panel {
+      display: none;
+      animation: fadeSlideUp .3s ease both;
+    }
+    .step-panel.is-visible { display: block; }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* shared card shell for each step */
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px 36px;
+      box-shadow: 0 1px 4px rgba(15,28,46,.06), 0 4px 16px rgba(15,28,46,.04);
+    }
+
+    .step-card__title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -.02em;
+      margin-bottom: 6px;
+    }
+    .step-card__sub {
+      font-size: .86rem;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    /* ============================================================
+       STEP 1 — Context dropdowns
+    ============================================================ */
+    .form-label-custom {
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* Bootstrap-select overrides */
+    .bootstrap-select {
+      max-width: 380px !important;
+      width: 100% !important;
+    }
+    .bootstrap-select .dropdown-toggle {
+      border-color: var(--border) !important;
+      border-radius: 8px !important;
+      font-size: .88rem !important;
+      color: var(--text-primary) !important;
+      background: #fff !important;
+      padding: 9px 14px !important;
+      box-shadow: none !important;
+    }
+    .bootstrap-select .dropdown-toggle:focus { box-shadow: 0 0 0 3px rgba(0,118,206,.2) !important; }
+    .bootstrap-select.show .dropdown-toggle { border-color: var(--dell-blue) !important; }
+    .bootstrap-select .dropdown-menu { border-color: var(--border); border-radius: 8px; font-size: .88rem; }
+    .bootstrap-select .dropdown-item.active,
+    .bootstrap-select .dropdown-item:active { background: var(--dell-blue); }
+
+
+    /* ============================================================
+       STEP 2 — File uploader
+    ============================================================ */
+    .upload-zone {
+      border: 2px dashed var(--border-strong);
+      border-radius: 12px;
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      background: #FAFBFC;
+      position: relative;
+    }
+    .upload-zone:hover,
+    .upload-zone.drag-over {
+      border-color: var(--dell-blue);
+      background: var(--dell-blue-faint);
+    }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-zone__icon { font-size: 2.2rem; color: var(--text-muted); margin-bottom: 12px; }
+    .upload-zone__label { font-size: .9rem; font-weight: 600; color: var(--text-secondary); }
+    .upload-zone__hint  { font-size: .78rem; color: var(--text-muted); margin-top: 4px; }
+    .upload-zone__link  { color: var(--dell-blue); text-decoration: underline; cursor: pointer; }
+
+    #file-name-display {
+      margin-top: 12px;
+      font-size: .82rem;
+      color: var(--step-done);
+      font-weight: 600;
+      display: none;
+    }
+    #file-name-display i { margin-right: 6px; }
+
+    /* ============================================================
+       STEP 3 — Configuration
+    ============================================================ */
+    .config-info-box {
+      background: var(--dell-blue-faint);
+      border: 1px solid #BFDBFE;
+      border-left: 4px solid var(--dell-blue);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      font-size: .86rem;
+      color: #1e3a5f;
+      line-height: 1.65;
+    }
+    .config-info-box i { margin-right: 8px; color: var(--dell-blue); }
+
+    .btn-configurator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      background: var(--dell-blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: .86rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .18s, box-shadow .18s;
+    }
+    .btn-configurator:hover {
+      background: var(--dell-blue-dark);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(0,118,206,.30);
+    }
+
+    /* ============================================================
+       STEP 4 — Process: action buttons
+    ============================================================ */
+    .process-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn-add-queue {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 20px; font-size: .84rem; font-weight: 600;
+      background: var(--dell-blue); color: #fff;
+      border: 1px solid var(--dell-blue); border-radius: 8px;
+      cursor: pointer; transition: background .18s, box-shadow .18s;
+    }
+    .btn-add-queue:hover {
+      background: var(--dell-blue-dark);
+      border-color: var(--dell-blue-dark);
+      box-shadow: 0 4px 14px rgba(0,118,206,.30);
+    }
+
+    .btn-mark-valid {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 20px; font-size: .84rem; font-weight: 600;
+      background: #fff; color: var(--text-primary);
+      border: 1px solid var(--border-strong); border-radius: 8px;
+      cursor: pointer; transition: background .18s, border-color .18s, box-shadow .18s;
+    }
+    .btn-mark-valid:hover,
+    .btn-mark-valid.is-active {
+      background: var(--dell-blue-faint);
+      border-color: var(--dell-blue);
+      color: var(--dell-blue);
+    }
+
+    .btn-back-tables {
+      display: none;
+      align-items: center; gap: 6px;
+      font-size: .82rem; font-weight: 600;
+      color: var(--text-secondary); background: none;
+      border: none; cursor: pointer; padding: 0;
+      transition: color .15s;
+    }
+    .btn-back-tables:hover { color: var(--dell-blue); }
+    .btn-back-tables.visible { display: inline-flex; }
+
+    /* ============================================================
+       TABLE SHARED
+    ============================================================ */
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(15,28,46,.06), 0 4px 16px rgba(15,28,46,.04);
+    }
+    .table-card__header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px;
+      background: var(--dell-blue);
+      color: #fff;
+    }
+    .table-card__title { font-size: .92rem; font-weight: 700; }
+    .table-card__count {
+      font-size: .68rem; font-weight: 700; letter-spacing: .06em;
+      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 100px; padding: 2px 10px;
+    }
+    .table-scroll {
+      overflow-x: auto; overflow-y: auto; max-height: 420px;
+      scrollbar-width: thin; scrollbar-color: var(--dell-blue) #F0F4F8;
+    }
+    .table-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .table-scroll::-webkit-scrollbar-track { background: #F0F4F8; border-radius: 100px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: var(--dell-blue); border-radius: 100px; border: 2px solid #F0F4F8; }
+    .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--dell-blue-dark); }
+    .table-scroll::-webkit-scrollbar-corner { background: #F0F4F8; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: .82rem; min-width: 600px; }
+    .data-table thead th {
+      position: sticky; top: 0; z-index: 2;
+      background: var(--dell-blue-faint); color: var(--text-secondary);
+      font-size: .68rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+      padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border); white-space: nowrap;
+    }
+    .data-table thead th:first-child { padding-left: 18px; }
+    .data-table thead th:last-child  { text-align: center; }
+    .data-table tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    .data-table tbody tr:last-child { border-bottom: none; }
+    .data-table tbody tr:hover { background: var(--dell-blue-faint); }
+    .data-table tbody td { padding: 11px 14px; vertical-align: middle; white-space: nowrap; }
+    .data-table tbody td:first-child  { padding-left: 18px; font-weight: 600; }
+    .data-table tbody td:last-child   { text-align: center; padding-right: 14px; }
+    .cell--type  { font-size: .8rem; color: var(--text-secondary); }
+    .cell--time  { font-size: .78rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+    .cell--user  { font-size: .8rem;  color: var(--text-secondary); }
+
+    /* badges */
+    .badge-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: .66rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 100px; border: 1px solid transparent; white-space: nowrap;
+    }
+    .badge-status::before { content:''; display:inline-block; width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+    .badge--queued    { background:var(--badge-queued-bg);  color:var(--badge-queued-text);  border-color:var(--badge-queued-bd); }
+    .badge--running   { background:var(--badge-running-bg); color:var(--badge-running-text); border-color:var(--badge-running-bd); }
+    .badge--completed { background:var(--badge-done-bg);    color:var(--badge-done-text);    border-color:var(--badge-done-bd); }
+    .badge--failed    { background:var(--badge-failed-bg);  color:var(--badge-failed-text);  border-color:var(--badge-failed-bd); }
+    .badge--pending   { background:var(--badge-pending-bg); color:var(--badge-pending-text); border-color:var(--badge-pending-bd); }
+    .badge--cancelled { background:var(--badge-cancel-bg);  color:var(--badge-cancel-text);  border-color:var(--badge-cancel-bd); }
+
+    /* cell action buttons */
+    .btn-cell {
+      font-size: .74rem; font-weight: 600; padding: 5px 12px; border-radius: 6px;
+      border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+      font-family: inherit; transition: background .15s, box-shadow .15s;
+    }
+    .btn-cell--primary { background: var(--dell-blue); color: #fff; border-color: var(--dell-blue); }
+    .btn-cell--primary:hover { background: var(--dell-blue-dark); box-shadow: 0 2px 8px rgba(0,118,206,.25); }
+    .btn-cell--cancel  { background: #FEF2F2; color: #991B1B; border-color: #FECACA; }
+    .btn-cell--cancel:hover  { background: #FEE2E2; }
+    .btn-cell--ghost   { background: transparent; color: var(--dell-blue); border-color: var(--border-strong); }
+    .btn-cell--ghost:hover   { background: var(--dell-blue-faint); border-color: var(--dell-blue); }
+
+    /* row 7 action row */
+    .row--action td { padding: 13px 18px; background: var(--dell-blue-faint); border-top: 1px solid var(--border); text-align: center; }
+    .btn-row-action {
+      width: 100%; justify-content: center; font-size: .78rem; padding: 7px 16px;
+      background: transparent; color: var(--dell-blue); border: 1px solid var(--dell-blue);
+      border-radius: 6px; cursor: pointer; transition: background .18s, color .18s;
+      display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-family: inherit;
+    }
+    .btn-row-action:hover { background: var(--dell-blue); color: #fff; }
+
+    /* ── table pagination ── */
+    .table-pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 18px; border-top: 1px solid var(--border);
+      background: var(--surface); flex-wrap: wrap; gap: 8px;
+    }
+    .pagination-info { font-size: .74rem; color: var(--text-muted); }
+    .pagination-controls { display: flex; gap: 4px; }
+    .page-btn {
+      min-width: 30px; height: 30px; padding: 0 8px; border-radius: 6px;
+      border: 1px solid var(--border); background: #fff;
+      font-size: .78rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--text-secondary); font-family: inherit;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .page-btn:hover:not(:disabled) { border-color: var(--dell-blue); color: var(--dell-blue); background: var(--dell-blue-faint); }
+    .page-btn.is-active { background: var(--dell-blue); color: #fff; border-color: var(--dell-blue); }
+    .page-btn:disabled { opacity: .38; cursor: default; pointer-events: none; }
+
+    /* ── side-by-side tables layout ── */
+    .tables-layout {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start;
+    }
+    @media (max-width: 900px) { .tables-layout { grid-template-columns: 1fr; } }
+
+    /* ── Valid Iterations table section ── */
+    #valid-iterations-section { display: none; }
+
+    .valid-section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+    }
+    .valid-section-title {
+      font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: -.01em;
+    }
+
+    /* checkbox in table */
+    .data-table input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: var(--dell-blue); cursor: pointer;
+    }
+
+    /* ============================================================
+       STEP 5 — Final Output
+    ============================================================ */
+    .output-summary {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 20px 0 12px;
+    }
+    .output-summary__icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: #DCFCE7; display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; color: var(--step-done); margin-bottom: 20px;
+    }
+    .output-summary__title { font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; }
+    .output-summary__sub   { font-size: .9rem; color: var(--text-secondary); max-width: 480px; line-height: 1.6; }
+
+    .output-stats {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px; margin-top: 32px;
+    }
+    .output-stat {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 18px 16px; text-align: center;
+    }
+    .output-stat__value { font-size: 1.6rem; font-weight: 800; color: var(--dell-blue); letter-spacing: -.03em; }
+    .output-stat__label { font-size: .72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 4px; }
+
+    /* ============================================================
+       NAV BUTTONS (Back / Next)
+    ============================================================ */
+    .stepper-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .btn-stepper {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 24px; font-size: .86rem; font-weight: 600;
+      border-radius: 8px; border: 1px solid; cursor: pointer;
+      font-family: inherit; transition: background .18s, box-shadow .18s;
+    }
+    .btn-stepper--back {
+      background: #fff; color: var(--text-secondary);
+      border-color: var(--border-strong);
+    }
+    .btn-stepper--back:hover { background: var(--bg); color: var(--text-primary); }
+    .btn-stepper--back:disabled { opacity: .4; pointer-events: none; }
+
+    .btn-stepper--next {
+      background: var(--dell-blue); color: #fff;
+      border-color: var(--dell-blue);
+    }
+    .btn-stepper--next:hover { background: var(--dell-blue-dark); box-shadow: 0 4px 14px rgba(0,118,206,.28); }
+    .btn-stepper--next:disabled { opacity: .4; pointer-events: none; }
+
+    /* step number indicator below stepper nav */
+    .stepper-nav__step-count {
+      font-size: .78rem; color: var(--text-muted); font-weight: 600; letter-spacing: .04em;
+    }
+
+    /* ============================================================
+       TOAST NOTIFICATION
+    ============================================================ */
+    .toast-wrapper {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast-msg {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px; border-radius: 10px; font-size: .84rem; font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,.15); animation: toastIn .25s ease both;
+      max-width: 340px;
+    }
+    .toast-msg--success { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
+    .toast-msg--info    { background: var(--dell-blue-faint); color: #1e3a5f; border: 1px solid #BFDBFE; }
+    @keyframes toastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 700px) {
+      .nav-bar { padding: 0 16px; }
+      .nav__user-email { display: none; }
+      .page-wrapper { padding: 24px 14px 60px; }
+      .step-card { padding: 24px 18px; }
+      .stepper__track { left: calc(12% + 14px); right: calc(12% + 14px); }
+      .step-item__label { font-size: .62rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+============================================================ -->
+<nav class="nav-bar" aria-label="Main navigation">
+  <div class="nav__brand">
+    <a class="nav__logo-ring" href="di-ae-control-center.html" aria-label="Dell Technologies">
+      <svg width="28" height="11" viewBox="0 0 28 11" fill="none" aria-hidden="true">
+        <text x="0" y="10"
+              font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+              font-size="10.5" font-weight="800" letter-spacing="-0.5"
+              fill="#FFFFFF">DELL</text>
+      </svg>
+    </a>
+    <div class="nav__vdivider" aria-hidden="true"></div>
+    <div class="nav__title-group">
+      <a class="nav__title-app" href="di-ae-control-center.html">DI AE Control Center</a>
+      <span class="nav__title-sep" aria-hidden="true">—</span>
+      <a class="nav__title-page" href="di-ae-control-center.html">Menu</a>
+      <span class="nav__title-sep" aria-hidden="true">—</span>
+      <a class="nav__title-page" href="#">New Process</a>
+    </div>
+  </div>
+
+  <div class="nav__right">
+    <a class="nav__icon-btn nav__icon-btn--dot" href="#" aria-label="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+    </a>
+    <a class="nav__icon-btn" href="#" aria-label="Help">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </a>
+    <a class="nav__icon-btn" href="#" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+        <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42 M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+    </a>
+    <div class="nav__rdivider" aria-hidden="true"></div>
+    <a class="nav__user" id="nav-user" href="#" aria-label="User account">
+      <div class="nav__user-avatar" id="nav-avatar"></div>
+      <span class="nav__user-email" id="nav-email"></span>
+    </a>
+  </div>
+</nav>
+
+<!-- ============================================================
+     DEV STRIP
+============================================================ -->
+<div class="dev-strip" role="alert">
+  <i class="fa-solid fa-triangle-exclamation"></i>
+  This is the development version of the Control Center
+</div>
+
+<!-- ============================================================
+     PAGE CONTENT
+============================================================ -->
+<div class="page-wrapper">
+
+  <!-- ── STEPPER HEADER ──────────────────────────────────── -->
+  <div class="stepper" id="stepper" aria-label="Process steps">
+
+    <!-- progress track -->
+    <div class="stepper__track">
+      <div class="stepper__progress" id="stepper-progress"></div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step-item is-active" data-step="1">
+      <div class="step-item__circle"><i class="fa-solid fa-layer-group"></i></div>
+      <span class="step-item__label">Context</span>
+    </div>
+    <!-- Step 2 -->
+    <div class="step-item" data-step="2">
+      <div class="step-item__circle"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+      <span class="step-item__label">Upload PreLeads</span>
+    </div>
+    <!-- Step 3 -->
+    <div class="step-item" data-step="3">
+      <div class="step-item__circle"><i class="fa-solid fa-sliders"></i></div>
+      <span class="step-item__label">Configuration</span>
+    </div>
+    <!-- Step 4 -->
+    <div class="step-item" data-step="4">
+      <div class="step-item__circle"><i class="fa-solid fa-gears"></i></div>
+      <span class="step-item__label">Process</span>
+    </div>
+    <!-- Step 5 -->
+    <div class="step-item" data-step="5">
+      <div class="step-item__circle"><i class="fa-solid fa-flag-checkered"></i></div>
+      <span class="step-item__label">Output</span>
+    </div>
+  </div>
+
+  <!-- ── STEPPER NAV BUTTONS ──────────────────────────────── -->
+  <div class="stepper-nav">
+    <button class="btn-stepper btn-stepper--back" id="btn-back" disabled>
+      <i class="fa-solid fa-arrow-left"></i> Back
+    </button>
+    <span class="stepper-nav__step-count" id="step-count">Step 1 of 5</span>
+    <button class="btn-stepper btn-stepper--next" id="btn-next">
+      Next <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <!-- ── STEP PANELS ─────────────────────────────────────── -->
+
+  <!-- STEP 1 — Context -->
+  <div class="step-panel is-visible" id="panel-1">
+    <div class="step-card">
+      <h2 class="step-card__title"><i class="fa-solid fa-layer-group me-2 text-primary"></i>Context</h2>
+      <p class="step-card__sub">Define the execution context for this process. All four fields are required before proceeding.</p>
+
+      <div class="row g-4">
+        <div class="col-12">
+          <label class="form-label-custom" for="sel-process-type">Process Type</label>
+          <select id="sel-process-type" class="selectpicker w-100" data-style="btn-light" data-width="100%"
+                  title="Select process type…" data-live-search="true" data-container="body">
+            <option value="batch">Batch</option>
+            <option value="realtime">Real-Time</option>
+            <option value="scheduled">Scheduled</option>
+            <option value="on-demand">On-Demand</option>
+            <option value="triggered">Event-Triggered</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label-custom" for="sel-campaign-type">Campaign Type</label>
+          <select id="sel-campaign-type" class="selectpicker w-100" data-style="btn-light" data-width="100%"
+                  title="Select campaign type…" data-live-search="true" data-container="body">
+            <option value="prospecting">Prospecting</option>
+            <option value="nurture">Nurture</option>
+            <option value="retention">Retention</option>
+            <option value="upsell">Upsell / Cross-Sell</option>
+            <option value="reactivation">Reactivation</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label-custom" for="sel-region">Region</label>
+          <select id="sel-region" class="selectpicker w-100" data-style="btn-light" data-width="100%"
+                  title="Select region…" data-live-search="true" data-container="body">
+            <option value="us-east">US — East</option>
+            <option value="us-west">US — West</option>
+            <option value="eu-west">EU — West</option>
+            <option value="eu-north">EU — North</option>
+            <option value="ap-south">AP — South</option>
+            <option value="ap-east">AP — East</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label-custom" for="sel-exec-type">Execution Type</label>
+          <select id="sel-exec-type" class="selectpicker w-100" data-style="btn-light" data-width="100%"
+                  title="Select execution type…" data-container="body">
+            <option value="sequential">Sequential</option>
+            <option value="parallel">Parallel</option>
+            <option value="distributed">Distributed</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 — Upload PreLeads -->
+  <div class="step-panel" id="panel-2">
+    <div class="step-card">
+      <h2 class="step-card__title"><i class="fa-solid fa-cloud-arrow-up me-2 text-primary"></i>Upload PreLeads</h2>
+      <p class="step-card__sub">
+        Upload your pre-qualified leads file for this process. Accepted formats are <strong>.csv</strong> and <strong>.xlsx</strong>.
+        Ensure your file includes at minimum the columns: <em>Account ID, Contact Email, Segment</em>.
+        Maximum file size is <strong>50 MB</strong>.
+      </p>
+
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" accept=".csv,.xlsx,.xls" aria-label="Upload pre-leads file" />
+        <div class="upload-zone__icon"><i class="fa-solid fa-file-arrow-up"></i></div>
+        <p class="upload-zone__label">
+          <span class="upload-zone__link">Click to browse</span> or drag &amp; drop your file here
+        </p>
+        <p class="upload-zone__hint">CSV or XLSX · Max 50 MB</p>
+      </div>
+
+      <div id="file-name-display">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="file-name-text"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 — Configuration -->
+  <div class="step-panel" id="panel-3">
+    <div class="step-card">
+      <h2 class="step-card__title"><i class="fa-solid fa-sliders me-2 text-primary"></i>Configuration</h2>
+      <p class="step-card__sub">
+        Configure the process parameters before execution. The Configurator lets you define scoring weights,
+        filtering rules, output mappings, and notification settings.
+      </p>
+
+      <div class="config-info-box">
+        <i class="fa-solid fa-circle-info"></i>
+        The Configurator opens in a new tab. Complete your configuration, save it, then return here and
+        click <strong>Next</strong> to proceed. Your saved configuration will be automatically linked to
+        this process by your session ID.
+      </div>
+
+      <div class="mb-3">
+        <p class="mb-3" style="font-size:.86rem; color:var(--text-secondary); line-height:1.7;">
+          <strong>What you can configure:</strong><br>
+          Scoring thresholds · Audience filters · Output field mappings ·
+          Iteration limits · Notification webhooks · Schedule overrides
+        </p>
+        <a class="btn-configurator" href="#" target="_blank" rel="noopener noreferrer">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          Open Configurator Form
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 — Process -->
+  <div class="step-panel" id="panel-4">
+    <div class="step-card">
+      <h2 class="step-card__title"><i class="fa-solid fa-gears me-2 text-primary"></i>Process</h2>
+      <p class="step-card__sub">Manage queued and completed processes. Add new processes to the queue or review and mark valid iterations.</p>
+
+      <!-- Action buttons -->
+      <div class="process-actions">
+        <button class="btn-add-queue" id="btn-add-queue">
+          <i class="fa-solid fa-circle-plus"></i> Add Process to Queue
+        </button>
+        <button class="btn-mark-valid" id="btn-mark-valid">
+          <i class="fa-solid fa-check-double"></i> Mark Valid Iterations
+        </button>
+        <button class="btn-back-tables" id="btn-back-tables">
+          <i class="fa-solid fa-arrow-left"></i> Back to Process Tables
+        </button>
+      </div>
+
+      <!-- ── DEFAULT VIEW: side-by-side process tables ── -->
+      <div id="process-tables">
+        <div class="tables-layout">
+
+          <!-- Processes in Queue -->
+          <div class="table-card">
+            <div class="table-card__header">
+              <span class="table-card__title">Processes in Queue</span>
+              <span class="table-card__count">10 Active</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table" id="queue-table" aria-label="Processes in Queue">
+                <thead>
+                  <tr>
+                    <th>Region</th><th>Type</th><th>Status</th>
+                    <th>User</th><th>Start (UTC)</th><th>End (UTC)</th><th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>US-East</td><td class="cell--type">Batch Import</td><td><span class="badge-status badge--running">Running</span></td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 08:14</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>EU-West</td><td class="cell--type">Data Sync</td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">a.smith@dell.com</td><td class="cell--time">2026-03-20 08:30</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>AP-South</td><td class="cell--type">ML Training</td><td><span class="badge-status badge--running">Running</span></td><td class="cell--user">r.patel@dell.com</td><td class="cell--time">2026-03-20 07:55</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>US-West</td><td class="cell--type">Report Gen</td><td><span class="badge-status badge--pending">Pending</span></td><td class="cell--user">l.chen@dell.com</td><td class="cell--time">2026-03-20 09:00</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>EU-North</td><td class="cell--type">Audit Log</td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">m.johnson@dell.com</td><td class="cell--time">2026-03-20 09:15</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>AP-East</td><td class="cell--type">Data Export</td><td><span class="badge-status badge--pending">Pending</span></td><td class="cell--user">k.yamada@dell.com</td><td class="cell--time">2026-03-20 09:30</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>US-West</td><td class="cell--type">Batch Import</td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">s.kim@dell.com</td><td class="cell--time">2026-03-20 09:45</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>EU-West</td><td class="cell--type">Report Gen</td><td><span class="badge-status badge--running">Running</span></td><td class="cell--user">t.nguyen@dell.com</td><td class="cell--time">2026-03-20 10:00</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>AP-East</td><td class="cell--type">ML Training</td><td><span class="badge-status badge--pending">Pending</span></td><td class="cell--user">o.garcia@dell.com</td><td class="cell--time">2026-03-20 10:15</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                  <tr><td>US-East</td><td class="cell--type">Data Sync</td><td><span class="badge-status badge--queued">Queued</span></td><td class="cell--user">e.brown@dell.com</td><td class="cell--time">2026-03-20 10:30</td><td class="cell--time">—</td><td><button class="btn-cell btn-cell--cancel">Cancel</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-pagination" id="queue-pagination"></div>
+          </div>
+
+          <!-- Process Completed -->
+          <div class="table-card">
+            <div class="table-card__header">
+              <span class="table-card__title">Process Completed</span>
+              <span class="table-card__count">10 Records</span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table" id="completed-table" aria-label="Process Completed">
+                <thead>
+                  <tr>
+                    <th>Region</th><th>Type</th><th>Status</th>
+                    <th>User</th><th>Start (UTC)</th><th>End (UTC)</th><th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>US-East</td><td class="cell--type">Batch Import</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 06:00</td><td class="cell--time">2026-03-20 06:48</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>EU-West</td><td class="cell--type">Data Sync</td><td><span class="badge-status badge--failed">Failed</span></td><td class="cell--user">a.smith@dell.com</td><td class="cell--time">2026-03-20 05:30</td><td class="cell--time">2026-03-20 05:44</td><td><button class="btn-cell btn-cell--primary">Retry</button></td></tr>
+                  <tr><td>AP-South</td><td class="cell--type">ML Training</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">r.patel@dell.com</td><td class="cell--time">2026-03-20 04:10</td><td class="cell--time">2026-03-20 07:52</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>US-West</td><td class="cell--type">Report Gen</td><td><span class="badge-status badge--failed">Failed</span></td><td class="cell--user">l.chen@dell.com</td><td class="cell--time">2026-03-20 03:00</td><td class="cell--time">2026-03-20 03:12</td><td><button class="btn-cell btn-cell--primary">Retry</button></td></tr>
+                  <tr><td>EU-North</td><td class="cell--type">Audit Log</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">m.johnson@dell.com</td><td class="cell--time">2026-03-20 02:00</td><td class="cell--time">2026-03-20 02:31</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>AP-East</td><td class="cell--type">Data Export</td><td><span class="badge-status badge--cancelled">Cancelled</span></td><td class="cell--user">k.yamada@dell.com</td><td class="cell--time">2026-03-20 01:15</td><td class="cell--time">2026-03-20 01:17</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>US-West</td><td class="cell--type">Batch Import</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">s.kim@dell.com</td><td class="cell--time">2026-03-20 00:45</td><td class="cell--time">2026-03-20 01:10</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>EU-West</td><td class="cell--type">Report Gen</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">t.nguyen@dell.com</td><td class="cell--time">2026-03-19 23:30</td><td class="cell--time">2026-03-20 00:05</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                  <tr><td>AP-East</td><td class="cell--type">ML Training</td><td><span class="badge-status badge--failed">Failed</span></td><td class="cell--user">o.garcia@dell.com</td><td class="cell--time">2026-03-19 22:00</td><td class="cell--time">2026-03-19 22:14</td><td><button class="btn-cell btn-cell--primary">Retry</button></td></tr>
+                  <tr><td>US-East</td><td class="cell--type">Data Sync</td><td><span class="badge-status badge--completed">Completed</span></td><td class="cell--user">e.brown@dell.com</td><td class="cell--time">2026-03-19 21:00</td><td class="cell--time">2026-03-19 21:43</td><td><button class="btn-cell btn-cell--ghost">View</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-pagination" id="completed-pagination"></div>
+          </div>
+
+        </div><!-- /.tables-layout -->
+      </div><!-- /#process-tables -->
+
+      <!-- ── MARK VALID ITERATIONS VIEW ── -->
+      <div id="valid-iterations-section">
+        <div class="valid-section-header">
+          <h3 class="valid-section-title">
+            <i class="fa-solid fa-check-double me-2" style="color:var(--step-done);"></i>
+            Mark Valid Iterations
+          </h3>
+          <span style="font-size:.8rem; color:var(--text-muted);">
+            Select the iterations you want to mark as valid, then click <strong>Confirm</strong>.
+          </span>
+        </div>
+
+        <div class="table-card">
+          <div class="table-card__header" style="background:#16A34A;">
+            <span class="table-card__title">Iterations — Review &amp; Validate</span>
+            <span class="table-card__count">8 Iterations</span>
+          </div>
+          <div class="table-scroll" style="max-height:480px;">
+            <table class="data-table" aria-label="Valid Iterations">
+              <thead>
+                <tr>
+                  <th style="width:42px; text-align:center;">
+                    <input type="checkbox" id="chk-all" title="Select all" />
+                  </th>
+                  <th>#</th>
+                  <th>Region</th>
+                  <th>Type</th>
+                  <th>User</th>
+                  <th>Start (UTC)</th>
+                  <th>Iterations</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="iterations-tbody">
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>001</td><td>US-East</td><td class="cell--type">Batch Import</td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 06:00</td><td>42</td><td><span class="badge-status badge--completed">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>002</td><td>EU-West</td><td class="cell--type">Data Sync</td><td class="cell--user">a.smith@dell.com</td><td class="cell--time">2026-03-20 05:30</td><td>18</td><td><span class="badge-status badge--failed">Failed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>003</td><td>AP-South</td><td class="cell--type">ML Training</td><td class="cell--user">r.patel@dell.com</td><td class="cell--time">2026-03-20 04:10</td><td>76</td><td><span class="badge-status badge--completed">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>004</td><td>US-West</td><td class="cell--type">Report Gen</td><td class="cell--user">l.chen@dell.com</td><td class="cell--time">2026-03-20 03:00</td><td>5</td><td><span class="badge-status badge--failed">Failed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>005</td><td>EU-North</td><td class="cell--type">Audit Log</td><td class="cell--user">m.johnson@dell.com</td><td class="cell--time">2026-03-20 02:00</td><td>31</td><td><span class="badge-status badge--completed">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>006</td><td>AP-East</td><td class="cell--type">Data Export</td><td class="cell--user">k.yamada@dell.com</td><td class="cell--time">2026-03-20 01:15</td><td>9</td><td><span class="badge-status badge--cancelled">Cancelled</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>007</td><td>US-East</td><td class="cell--type">Batch Import</td><td class="cell--user">j.doe@dell.com</td><td class="cell--time">2026-03-20 00:30</td><td>54</td><td><span class="badge-status badge--completed">Completed</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+                <tr><td style="text-align:center;"><input type="checkbox" class="row-chk" /></td><td>008</td><td>EU-West</td><td class="cell--type">ML Training</td><td class="cell--user">a.smith@dell.com</td><td class="cell--time">2026-03-19 23:00</td><td>63</td><td><span class="badge-status badge--running">Running</span></td><td><button class="btn-cell btn-cell--ghost btn-mark-row">Mark Valid</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Confirm action -->
+        <div class="d-flex align-items-center gap-3 mt-3">
+          <button class="btn-add-queue" id="btn-confirm-valid" style="background:#16A34A; border-color:#16A34A;">
+            <i class="fa-solid fa-circle-check"></i> Confirm Selected as Valid
+          </button>
+          <span id="selected-count" style="font-size:.82rem; color:var(--text-muted);">0 selected</span>
+        </div>
+      </div><!-- /#valid-iterations-section -->
+
+    </div><!-- /.step-card -->
+  </div><!-- /#panel-4 -->
+
+  <!-- STEP 5 — Output -->
+  <div class="step-panel" id="panel-5">
+    <div class="step-card">
+      <h2 class="step-card__title"><i class="fa-solid fa-flag-checkered me-2 text-primary"></i>Final Output</h2>
+      <p class="step-card__sub">The process has been submitted successfully. Review the summary below.</p>
+
+      <div class="output-summary">
+        <div class="output-summary__icon"><i class="fa-solid fa-circle-check"></i></div>
+        <h3 class="output-summary__title">Process Submitted!</h3>
+        <p class="output-summary__sub">
+          Your process has been queued successfully. You can track its progress in the Process Monitor
+          or return to the Control Center menu.
+        </p>
+      </div>
+
+      <div class="output-stats">
+        <div class="output-stat">
+          <div class="output-stat__value" id="out-region">—</div>
+          <div class="output-stat__label">Region</div>
+        </div>
+        <div class="output-stat">
+          <div class="output-stat__value" id="out-process">—</div>
+          <div class="output-stat__label">Process Type</div>
+        </div>
+        <div class="output-stat">
+          <div class="output-stat__value" id="out-campaign">—</div>
+          <div class="output-stat__label">Campaign Type</div>
+        </div>
+        <div class="output-stat">
+          <div class="output-stat__value" id="out-exec">—</div>
+          <div class="output-stat__label">Execution Type</div>
+        </div>
+        <div class="output-stat">
+          <div class="output-stat__value" id="out-file">—</div>
+          <div class="output-stat__label">File Uploaded</div>
+        </div>
+        <div class="output-stat">
+          <div class="output-stat__value">Queued</div>
+          <div class="output-stat__label">Status</div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-3 mt-4 flex-wrap">
+        <a href="di-ae-control-center.html" class="btn-configurator">
+          <i class="fa-solid fa-house"></i> Back to Menu
+        </a>
+        <a href="tables.html" class="btn-configurator" style="background:var(--bg); color:var(--text-primary); border:1px solid var(--border-strong);">
+          <i class="fa-solid fa-table-list"></i> Process Monitor
+        </a>
+      </div>
+    </div>
+  </div>
+
+
+</div><!-- /.page-wrapper -->
+
+<!-- Toast container -->
+<div class="toast-wrapper" id="toast-wrapper"></div>
+
+
+<!-- ============================================================
+     SCRIPTS
+============================================================ -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap Select -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+
+<script>
+$(function () {
+
+  /* ============================================================
+     USER
+  ============================================================ */
+  function getEmail()         { return 'john.doe@dell.com'; }
+  function getInitials(email) {
+    if (!email) return '?';
+    const words = email.split('@')[0].split(/[._\-+]+/).filter(Boolean);
+    return words.slice(0,2).map(w => w[0].toUpperCase()).join('') || email[0].toUpperCase();
+  }
+
+  const email = getEmail();
+  $('#nav-avatar').text(getInitials(email));
+  $('#nav-email').text(email);
+  $('#nav-user').attr('aria-label', `Signed in as ${email}`);
+
+  /* ============================================================
+     BOOTSTRAP SELECT — init
+  ============================================================ */
+  $('.selectpicker').selectpicker();
+
+  /* ============================================================
+     STEPPER STATE
+  ============================================================ */
+  let currentStep = 1;
+  const TOTAL     = 5;
+
+  // progress bar widths per step
+  const progressMap = { 1: '0%', 2: '25%', 3: '50%', 4: '75%', 5: '100%' };
+
+  function goToStep(step) {
+    // update panels
+    $('.step-panel').removeClass('is-visible');
+    $(`#panel-${step}`).addClass('is-visible');
+
+    // update step indicators
+    $('.step-item').each(function () {
+      const n = parseInt($(this).data('step'));
+      $(this).removeClass('is-active is-done');
+      if      (n < step)  $(this).addClass('is-done').find('.step-item__circle').html('<i class="fa-solid fa-check"></i>');
+      else if (n === step) $(this).addClass('is-active');
+      // restore original icon if coming back from "done"
+      else {
+        const icons = ['','fa-layer-group','fa-cloud-arrow-up','fa-sliders','fa-gears','fa-flag-checkered'];
+        $(this).find('.step-item__circle').html(`<i class="fa-solid ${icons[n]}"></i>`);
+      }
+    });
+
+    // progress bar
+    $('#stepper-progress').css('width', progressMap[step]);
+
+    // nav buttons
+    step === 1 ? $('#btn-back').prop('disabled', true) : $('#btn-back').prop('disabled', false);
+    step === TOTAL
+      ? $('#btn-next').html('Finish <i class="fa-solid fa-flag-checkered"></i>')
+      : $('#btn-next').html('Next <i class="fa-solid fa-arrow-right"></i>');
+
+    // step count
+    $('#step-count').text(`Step ${step} of ${TOTAL}`);
+
+    // populate output on step 5
+    if (step === 5) populateOutput();
+
+    currentStep = step;
+
+    // scroll to top of page-wrapper
+    $('html, body').animate({ scrollTop: $('.page-wrapper').offset().top - 20 }, 250);
+  }
+
+  /* ============================================================
+     NAVIGATION
+  ============================================================ */
+  $('#btn-next').on('click', function () {
+    if (currentStep < TOTAL) goToStep(currentStep + 1);
+    else                      showToast('Process submitted successfully!', 'success');
+  });
+
+  $('#btn-back').on('click', function () {
+    if (currentStep > 1) goToStep(currentStep - 1);
+  });
+
+  // Clickable stepper circles
+  $('#stepper').on('click', '.step-item', function () {
+    const target = parseInt($(this).data('step'));
+    if (target !== currentStep) goToStep(target);
+  });
+
+  /* ============================================================
+     STEP 2 — FILE UPLOAD
+  ============================================================ */
+  $('#file-input').on('change', function () {
+    const file = this.files[0];
+    if (file) {
+      $('#file-name-text').text(file.name);
+      $('#file-name-display').fadeIn(200);
+      showToast(`File "${file.name}" selected.`, 'info');
+    }
+  });
+
+  // drag-and-drop visual feedback
+  $('#upload-zone')
+    .on('dragover',  function (e) { e.preventDefault(); $(this).addClass('drag-over'); })
+    .on('dragleave', function ()  { $(this).removeClass('drag-over'); })
+    .on('drop',      function (e) {
+      e.preventDefault();
+      $(this).removeClass('drag-over');
+      const file = e.originalEvent.dataTransfer.files[0];
+      if (file) {
+        $('#file-input')[0].files; // can't set programmatically — just show name
+        $('#file-name-text').text(file.name);
+        $('#file-name-display').fadeIn(200);
+        showToast(`File "${file.name}" dropped.`, 'info');
+      }
+    });
+
+  /* ============================================================
+     TABLE PAGINATION
+  ============================================================ */
+  function initPagination(tableId, paginationId, rowsPerPage) {
+    const $tbody    = $('#' + tableId + ' tbody');
+    const $pagDiv   = $('#' + paginationId);
+    const $allRows  = $tbody.find('tr');
+    const total     = $allRows.length;
+    const totalPages = Math.ceil(total / rowsPerPage);
+    let page = 1;
+
+    function render(p) {
+      page = p;
+      $allRows.hide();
+      const start = (p - 1) * rowsPerPage;
+      $allRows.slice(start, start + rowsPerPage).show();
+
+      const end = Math.min(start + rowsPerPage, total);
+      $pagDiv.find('.pagination-info').text(`${start + 1}–${end} of ${total}`);
+      $pagDiv.find('.page-btn[data-page]').each(function () {
+        $(this).toggleClass('is-active', +$(this).data('page') === p);
+      });
+      $pagDiv.find('.btn-prev').prop('disabled', p === 1);
+      $pagDiv.find('.btn-next').prop('disabled', p === totalPages);
+    }
+
+    // build controls
+    let pageButtons = '';
+    for (let i = 1; i <= totalPages; i++) {
+      pageButtons += `<button class="page-btn" data-page="${i}">${i}</button>`;
+    }
+    $pagDiv.html(`
+      <span class="pagination-info"></span>
+      <div class="pagination-controls">
+        <button class="page-btn btn-prev"><i class="fa-solid fa-chevron-left"></i></button>
+        ${pageButtons}
+        <button class="page-btn btn-next"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    `);
+
+    $pagDiv.on('click', '.page-btn[data-page]', function () { render(+$(this).data('page')); });
+    $pagDiv.on('click', '.btn-prev', function () { if (page > 1) render(page - 1); });
+    $pagDiv.on('click', '.btn-next', function () { if (page < totalPages) render(page + 1); });
+
+    render(1);
+  }
+
+  initPagination('queue-table',     'queue-pagination',     5);
+  initPagination('completed-table', 'completed-pagination', 5);
+
+  /* ============================================================
+     STEP 4 — ADD PROCESS TO QUEUE
+  ============================================================ */
+  $('#btn-add-queue').on('click', function () {
+    showToast('Process added to the queue!', 'success');
+  });
+
+  /* ============================================================
+     STEP 4 — TOGGLE VIEWS: Process Tables ↔ Valid Iterations
+  ============================================================ */
+  $('#btn-mark-valid').on('click', function () {
+    $('#process-tables').hide();
+    $('#valid-iterations-section').fadeIn(250);
+    $(this).addClass('is-active');
+    $('#btn-back-tables').addClass('visible');
+  });
+
+  $('#btn-back-tables').on('click', function () {
+    $('#valid-iterations-section').hide();
+    $('#process-tables').fadeIn(250);
+    $('#btn-mark-valid').removeClass('is-active');
+    $(this).removeClass('visible');
+  });
+
+  /* ============================================================
+     STEP 4 — SELECT-ALL CHECKBOX
+  ============================================================ */
+  $('#chk-all').on('change', function () {
+    const checked = $(this).prop('checked');
+    $('.row-chk').prop('checked', checked);
+    updateSelectedCount();
+  });
+
+  $(document).on('change', '.row-chk', function () {
+    const total   = $('.row-chk').length;
+    const checked = $('.row-chk:checked').length;
+    $('#chk-all').prop('indeterminate', checked > 0 && checked < total)
+                 .prop('checked', checked === total);
+    updateSelectedCount();
+  });
+
+  function updateSelectedCount() {
+    const n = $('.row-chk:checked').length;
+    $('#selected-count').text(`${n} selected`);
+  }
+
+  /* ============================================================
+     STEP 4 — MARK INDIVIDUAL ROW VALID
+  ============================================================ */
+  $(document).on('click', '.btn-mark-row', function () {
+    const $row   = $(this).closest('tr');
+    const iterNo = $row.find('td:nth-child(2)').text();
+    $(this).html('<i class="fa-solid fa-check"></i> Marked').addClass('btn-cell--primary').removeClass('btn-cell--ghost').prop('disabled', true);
+    $row.find('.row-chk').prop('checked', true).trigger('change');
+    showToast(`Iteration ${iterNo} marked as valid.`, 'success');
+  });
+
+  /* ============================================================
+     STEP 4 — CONFIRM SELECTED
+  ============================================================ */
+  $('#btn-confirm-valid').on('click', function () {
+    const n = $('.row-chk:checked').length;
+    if (n === 0) { showToast('No iterations selected.', 'info'); return; }
+    showToast(`${n} iteration${n > 1 ? 's' : ''} confirmed as valid.`, 'success');
+  });
+
+  /* ============================================================
+     OUTPUT — populate step 5 summary from step 1 selects
+  ============================================================ */
+  function populateOutput() {
+    const label = id => $(`#${id} option:selected`).text() || '—';
+    $('#out-process').text(label('sel-process-type'));
+    $('#out-campaign').text(label('sel-campaign-type'));
+    $('#out-region').text(label('sel-region'));
+    $('#out-exec').text(label('sel-exec-type'));
+    const fname = $('#file-name-text').text() || '—';
+    $('#out-file').text(fname.length > 14 ? fname.substring(0,12)+'…' : fname);
+  }
+
+  /* ============================================================
+     TOAST HELPER
+  ============================================================ */
+  function showToast(msg, type = 'info') {
+    const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-info';
+    const $t = $(`<div class="toast-msg toast-msg--${type}"><i class="fa-solid ${icon}"></i>${msg}</div>`);
+    $('#toast-wrapper').append($t);
+    setTimeout(() => $t.fadeOut(300, function () { $(this).remove(); }), 3200);
+  }
+
+});
+</script>
+
+</body>
+</html>
